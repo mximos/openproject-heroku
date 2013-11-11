@@ -1,0 +1,1846 @@
+Connecting to database specified by database.yml
+Creating scope :open. Overwriting existing method WorkPackage.open.
+Creating scope :open. Overwriting existing method Version.open.
+Creating scope :public. Overwriting existing method Project.public.
+Creating scope :changing. Overwriting existing method Journal.changing.
+  [1m[36m (121.0ms)[0m  [1mCREATE TABLE `schema_migrations` (`version` varchar(255) NOT NULL) ENGINE=InnoDB[0m
+  [1m[35m (217.7ms)[0m  CREATE UNIQUE INDEX `unique_schema_migrations` ON `schema_migrations` (`version`)
+  [1m[36m (71.6ms)[0m  [1mSELECT `schema_migrations`.`version` FROM `schema_migrations` [0m
+Migrating to AggregatedMigrations (0)
+  [1m[35m (0.1ms)[0m  SELECT `schema_migrations`.`version` FROM `schema_migrations` 
+  [1m[36m (94.1ms)[0m  [1mCREATE TABLE `attachments` (`id` int(11) DEFAULT NULL auto_increment PRIMARY KEY, `container_id` int(11) DEFAULT 0 NOT NULL, `container_type` varchar(30) DEFAULT '' NOT NULL, `filename` varchar(255) DEFAULT '' NOT NULL, `disk_filename` varchar(255) DEFAULT '' NOT NULL, `filesize` int(11) DEFAULT 0 NOT NULL, `content_type` varchar(255) DEFAULT '', `digest` varchar(40) DEFAULT '' NOT NULL, `downloads` int(11) DEFAULT 0 NOT NULL, `author_id` int(11) DEFAULT 0 NOT NULL, `created_on` datetime, `description` varchar(255)) ENGINE=InnoDB[0m
+  [1m[35m (200.7ms)[0m  CREATE INDEX `index_attachments_on_author_id` ON `attachments` (`author_id`)
+  [1m[36m (216.8ms)[0m  [1mCREATE INDEX `index_attachments_on_container_id_and_container_type` ON `attachments` (`container_id`, `container_type`)[0m
+  [1m[35m (335.9ms)[0m  CREATE INDEX `index_attachments_on_created_on` ON `attachments` (`created_on`)
+  [1m[36m (99.2ms)[0m  [1mCREATE TABLE `auth_sources` (`id` int(11) DEFAULT NULL auto_increment PRIMARY KEY, `type` varchar(30) DEFAULT '' NOT NULL, `name` varchar(60) DEFAULT '' NOT NULL, `host` varchar(60), `port` int(11), `account` varchar(255), `account_password` varchar(255) DEFAULT '', `base_dn` varchar(255), `attr_login` varchar(30), `attr_firstname` varchar(30), `attr_lastname` varchar(30), `attr_mail` varchar(30), `onthefly_register` tinyint(1) DEFAULT 0 NOT NULL, `tls` tinyint(1) DEFAULT 0 NOT NULL) ENGINE=InnoDB[0m
+  [1m[35m (209.1ms)[0m  CREATE INDEX `index_auth_sources_on_id_and_type` ON `auth_sources` (`id`, `type`)
+  [1m[36m (107.7ms)[0m  [1mCREATE TABLE `boards` (`id` int(11) DEFAULT NULL auto_increment PRIMARY KEY, `project_id` int(11) NOT NULL, `name` varchar(255) DEFAULT '' NOT NULL, `description` varchar(255), `position` int(11) DEFAULT 1, `topics_count` int(11) DEFAULT 0 NOT NULL, `messages_count` int(11) DEFAULT 0 NOT NULL, `last_message_id` int(11)) ENGINE=InnoDB[0m
+  [1m[35m (200.6ms)[0m  CREATE INDEX `index_boards_on_last_message_id` ON `boards` (`last_message_id`)
+  [1m[36m (210.2ms)[0m  [1mCREATE INDEX `boards_project_id` ON `boards` (`project_id`)[0m
+  [1m[35m (99.2ms)[0m  CREATE TABLE `changes` (`id` int(11) DEFAULT NULL auto_increment PRIMARY KEY, `changeset_id` int(11) NOT NULL, `action` varchar(1) DEFAULT '' NOT NULL, `path` text NOT NULL, `from_path` text, `from_revision` varchar(255), `revision` varchar(255), `branch` varchar(255)) ENGINE=InnoDB
+  [1m[36m (200.7ms)[0m  [1mCREATE INDEX `changesets_changeset_id` ON `changes` (`changeset_id`)[0m
+  [1m[35m (99.4ms)[0m  CREATE TABLE `changesets` (`id` int(11) DEFAULT NULL auto_increment PRIMARY KEY, `repository_id` int(11) NOT NULL, `revision` varchar(255) NOT NULL, `committer` varchar(255), `committed_on` datetime NOT NULL, `comments` text, `commit_date` date, `scmid` varchar(255), `user_id` int(11)) ENGINE=InnoDB
+  [1m[36m (200.3ms)[0m  [1mCREATE INDEX `index_changesets_on_committed_on` ON `changesets` (`committed_on`)[0m
+  [1m[35m (208.9ms)[0m  CREATE UNIQUE INDEX `changesets_repos_rev` ON `changesets` (`repository_id`, `revision`)
+  [1m[36m (193.6ms)[0m  [1mCREATE INDEX `changesets_repos_scmid` ON `changesets` (`repository_id`, `scmid`)[0m
+  [1m[35m (192.3ms)[0m  CREATE INDEX `index_changesets_on_repository_id` ON `changesets` (`repository_id`)
+  [1m[36m (192.3ms)[0m  [1mCREATE INDEX `index_changesets_on_user_id` ON `changesets` (`user_id`)[0m
+  [1m[35m (108.1ms)[0m  CREATE TABLE `changesets_issues` (`changeset_id` int(11) NOT NULL, `issue_id` int(11) NOT NULL) ENGINE=InnoDB
+  [1m[36m (234.3ms)[0m  [1mCREATE UNIQUE INDEX `changesets_issues_ids` ON `changesets_issues` (`changeset_id`, `issue_id`)[0m
+  [1m[35m (99.2ms)[0m  CREATE TABLE `comments` (`id` int(11) DEFAULT NULL auto_increment PRIMARY KEY, `commented_type` varchar(30) DEFAULT '' NOT NULL, `commented_id` int(11) DEFAULT 0 NOT NULL, `author_id` int(11) DEFAULT 0 NOT NULL, `comments` text, `created_on` datetime NOT NULL, `updated_on` datetime NOT NULL) ENGINE=InnoDB
+  [1m[36m (201.8ms)[0m  [1mCREATE INDEX `index_comments_on_author_id` ON `comments` (`author_id`)[0m
+  [1m[35m (217.1ms)[0m  CREATE INDEX `index_comments_on_commented_id_and_commented_type` ON `comments` (`commented_id`, `commented_type`)
+  [1m[36m (106.6ms)[0m  [1mCREATE TABLE `custom_fields` (`id` int(11) DEFAULT NULL auto_increment PRIMARY KEY, `type` varchar(30) DEFAULT '' NOT NULL, `name` varchar(30) DEFAULT '' NOT NULL, `field_format` varchar(30) DEFAULT '' NOT NULL, `possible_values` text, `regexp` varchar(255) DEFAULT '', `min_length` int(11) DEFAULT 0 NOT NULL, `max_length` int(11) DEFAULT 0 NOT NULL, `is_required` tinyint(1) DEFAULT 0 NOT NULL, `is_for_all` tinyint(1) DEFAULT 0 NOT NULL, `is_filter` tinyint(1) DEFAULT 0 NOT NULL, `position` int(11) DEFAULT 1, `searchable` tinyint(1) DEFAULT 0, `default_value` text, `editable` tinyint(1) DEFAULT 1, `visible` tinyint(1) DEFAULT 1 NOT NULL) ENGINE=InnoDB[0m
+  [1m[35m (200.7ms)[0m  CREATE INDEX `index_custom_fields_on_id_and_type` ON `custom_fields` (`id`, `type`)
+  [1m[36m (108.1ms)[0m  [1mCREATE TABLE `custom_fields_projects` (`custom_field_id` int(11) DEFAULT 0 NOT NULL, `project_id` int(11) DEFAULT 0 NOT NULL) ENGINE=InnoDB[0m
+  [1m[35m (192.6ms)[0m  CREATE INDEX `index_custom_fields_projects_on_custom_field_id_and_project_id` ON `custom_fields_projects` (`custom_field_id`, `project_id`)
+  [1m[36m (107.6ms)[0m  [1mCREATE TABLE `custom_fields_trackers` (`custom_field_id` int(11) DEFAULT 0 NOT NULL, `tracker_id` int(11) DEFAULT 0 NOT NULL) ENGINE=InnoDB[0m
+  [1m[35m (201.8ms)[0m  CREATE INDEX `index_custom_fields_trackers_on_custom_field_id_and_tracker_id` ON `custom_fields_trackers` (`custom_field_id`, `tracker_id`)
+  [1m[36m (99.5ms)[0m  [1mCREATE TABLE `custom_values` (`id` int(11) DEFAULT NULL auto_increment PRIMARY KEY, `customized_type` varchar(30) DEFAULT '' NOT NULL, `customized_id` int(11) DEFAULT 0 NOT NULL, `custom_field_id` int(11) DEFAULT 0 NOT NULL, `value` text) ENGINE=InnoDB[0m
+  [1m[35m (200.5ms)[0m  CREATE INDEX `index_custom_values_on_custom_field_id` ON `custom_values` (`custom_field_id`)
+  [1m[36m (208.8ms)[0m  [1mCREATE INDEX `custom_values_customized` ON `custom_values` (`customized_type`, `customized_id`)[0m
+  [1m[35m (98.4ms)[0m  CREATE TABLE `documents` (`id` int(11) DEFAULT NULL auto_increment PRIMARY KEY, `project_id` int(11) DEFAULT 0 NOT NULL, `category_id` int(11) DEFAULT 0 NOT NULL, `title` varchar(60) DEFAULT '' NOT NULL, `description` text, `created_on` datetime) ENGINE=InnoDB
+  [1m[36m (209.1ms)[0m  [1mCREATE INDEX `index_documents_on_category_id` ON `documents` (`category_id`)[0m
+  [1m[35m (218.6ms)[0m  CREATE INDEX `index_documents_on_created_on` ON `documents` (`created_on`)
+  [1m[36m (217.4ms)[0m  [1mCREATE INDEX `documents_project_id` ON `documents` (`project_id`)[0m
+  [1m[35m (108.0ms)[0m  CREATE TABLE `enabled_modules` (`id` int(11) DEFAULT NULL auto_increment PRIMARY KEY, `project_id` int(11), `name` varchar(255) NOT NULL) ENGINE=InnoDB
+  [1m[36m (200.8ms)[0m  [1mCREATE INDEX `enabled_modules_project_id` ON `enabled_modules` (`project_id`)[0m
+  [1m[35m (99.5ms)[0m  CREATE TABLE `enumerations` (`id` int(11) DEFAULT NULL auto_increment PRIMARY KEY, `name` varchar(30) DEFAULT '' NOT NULL, `position` int(11) DEFAULT 1, `is_default` tinyint(1) DEFAULT 0 NOT NULL, `type` varchar(255), `active` tinyint(1) DEFAULT 1 NOT NULL, `project_id` int(11), `parent_id` int(11)) ENGINE=InnoDB
+  [1m[36m (267.4ms)[0m  [1mCREATE INDEX `index_enumerations_on_id_and_type` ON `enumerations` (`id`, `type`)[0m
+  [1m[35m (218.7ms)[0m  CREATE INDEX `index_enumerations_on_project_id` ON `enumerations` (`project_id`)
+  [1m[36m (107.7ms)[0m  [1mCREATE TABLE `groups_users` (`group_id` int(11) NOT NULL, `user_id` int(11) NOT NULL) ENGINE=InnoDB[0m
+  [1m[35m (226.1ms)[0m  CREATE UNIQUE INDEX `groups_users_ids` ON `groups_users` (`group_id`, `user_id`)
+  [1m[36m (115.7ms)[0m  [1mCREATE TABLE `issue_categories` (`id` int(11) DEFAULT NULL auto_increment PRIMARY KEY, `project_id` int(11) DEFAULT 0 NOT NULL, `name` varchar(30) DEFAULT '' NOT NULL, `assigned_to_id` int(11)) ENGINE=InnoDB[0m
+  [1m[35m (200.8ms)[0m  CREATE INDEX `index_issue_categories_on_assigned_to_id` ON `issue_categories` (`assigned_to_id`)
+  [1m[36m (208.7ms)[0m  [1mCREATE INDEX `issue_categories_project_id` ON `issue_categories` (`project_id`)[0m
+  [1m[35m (109.0ms)[0m  CREATE TABLE `issue_relations` (`id` int(11) DEFAULT NULL auto_increment PRIMARY KEY, `issue_from_id` int(11) NOT NULL, `issue_to_id` int(11) NOT NULL, `relation_type` varchar(255) DEFAULT '' NOT NULL, `delay` int(11)) ENGINE=InnoDB
+  [1m[36m (208.9ms)[0m  [1mCREATE INDEX `index_issue_relations_on_issue_from_id` ON `issue_relations` (`issue_from_id`)[0m
+  [1m[35m (208.9ms)[0m  CREATE INDEX `index_issue_relations_on_issue_to_id` ON `issue_relations` (`issue_to_id`)
+  [1m[36m (115.5ms)[0m  [1mCREATE TABLE `issue_statuses` (`id` int(11) DEFAULT NULL auto_increment PRIMARY KEY, `name` varchar(30) DEFAULT '' NOT NULL, `is_closed` tinyint(1) DEFAULT 0 NOT NULL, `is_default` tinyint(1) DEFAULT 0 NOT NULL, `position` int(11) DEFAULT 1, `default_done_ratio` int(11)) ENGINE=InnoDB[0m
+  [1m[35m (209.1ms)[0m  CREATE INDEX `index_issue_statuses_on_is_closed` ON `issue_statuses` (`is_closed`)
+  [1m[36m (209.2ms)[0m  [1mCREATE INDEX `index_issue_statuses_on_is_default` ON `issue_statuses` (`is_default`)[0m
+  [1m[35m (201.5ms)[0m  CREATE INDEX `index_issue_statuses_on_position` ON `issue_statuses` (`position`)
+  [1m[36m (115.0ms)[0m  [1mCREATE TABLE `issues` (`id` int(11) DEFAULT NULL auto_increment PRIMARY KEY, `tracker_id` int(11) DEFAULT 0 NOT NULL, `project_id` int(11) DEFAULT 0 NOT NULL, `subject` varchar(255) DEFAULT '' NOT NULL, `description` text, `due_date` date, `category_id` int(11), `status_id` int(11) DEFAULT 0 NOT NULL, `assigned_to_id` int(11), `priority_id` int(11) DEFAULT 0 NOT NULL, `fixed_version_id` int(11), `author_id` int(11) DEFAULT 0 NOT NULL, `lock_version` int(11) DEFAULT 0 NOT NULL, `created_on` datetime, `updated_on` datetime, `start_date` date, `done_ratio` int(11) DEFAULT 0 NOT NULL, `estimated_hours` float, `parent_id` int(11), `root_id` int(11), `lft` int(11), `rgt` int(11)) ENGINE=InnoDB[0m
+  [1m[35m (208.9ms)[0m  CREATE INDEX `index_issues_on_assigned_to_id` ON `issues` (`assigned_to_id`)
+  [1m[36m (217.1ms)[0m  [1mCREATE INDEX `index_issues_on_author_id` ON `issues` (`author_id`)[0m
+  [1m[35m (521.4ms)[0m  CREATE INDEX `index_issues_on_category_id` ON `issues` (`category_id`)
+  [1m[36m (337.0ms)[0m  [1mCREATE INDEX `index_issues_on_created_on` ON `issues` (`created_on`)[0m
+  [1m[35m (248.1ms)[0m  CREATE INDEX `index_issues_on_fixed_version_id` ON `issues` (`fixed_version_id`)
+  [1m[36m (209.0ms)[0m  [1mCREATE INDEX `index_issues_on_priority_id` ON `issues` (`priority_id`)[0m
+  [1m[35m (209.8ms)[0m  CREATE INDEX `issues_project_id` ON `issues` (`project_id`)
+  [1m[36m (187.9ms)[0m  [1mCREATE INDEX `index_issues_on_root_id_and_lft_and_rgt` ON `issues` (`root_id`, `lft`, `rgt`)[0m
+  [1m[35m (208.1ms)[0m  CREATE INDEX `index_issues_on_status_id` ON `issues` (`status_id`)
+  [1m[36m (274.9ms)[0m  [1mCREATE INDEX `index_issues_on_tracker_id` ON `issues` (`tracker_id`)[0m
+  [1m[35m (107.6ms)[0m  CREATE TABLE `journal_details` (`id` int(11) DEFAULT NULL auto_increment PRIMARY KEY, `journal_id` int(11) DEFAULT 0 NOT NULL, `property` varchar(30) DEFAULT '' NOT NULL, `prop_key` varchar(30) DEFAULT '' NOT NULL, `old_value` text, `value` text) ENGINE=InnoDB
+  [1m[36m (193.8ms)[0m  [1mCREATE INDEX `journal_details_journal_id` ON `journal_details` (`journal_id`)[0m
+  [1m[35m (106.8ms)[0m  CREATE TABLE `journals` (`id` int(11) DEFAULT NULL auto_increment PRIMARY KEY, `journaled_id` int(11) DEFAULT 0 NOT NULL, `user_id` int(11) DEFAULT 0 NOT NULL, `notes` text, `created_at` datetime NOT NULL, `version` int(11) DEFAULT 0 NOT NULL, `activity_type` varchar(255), `changes` text, `type` varchar(255)) ENGINE=InnoDB
+  [1m[36m (209.1ms)[0m  [1mCREATE INDEX `index_journals_on_activity_type` ON `journals` (`activity_type`)[0m
+  [1m[35m (217.3ms)[0m  CREATE INDEX `index_journals_on_created_at` ON `journals` (`created_at`)
+  [1m[36m (209.0ms)[0m  [1mCREATE INDEX `index_journals_on_created_on` ON `journals` (`created_at`)[0m
+  [1m[35m (183.9ms)[0m  CREATE INDEX `index_journals_on_journaled_id` ON `journals` (`journaled_id`)
+  [1m[36m (210.2ms)[0m  [1mCREATE INDEX `index_journals_on_journalized_id` ON `journals` (`journaled_id`)[0m
+  [1m[35m (208.9ms)[0m  CREATE INDEX `index_journals_on_type` ON `journals` (`type`)
+  [1m[36m (208.6ms)[0m  [1mCREATE INDEX `index_journals_on_user_id` ON `journals` (`user_id`)[0m
+  [1m[35m (99.2ms)[0m  CREATE TABLE `member_roles` (`id` int(11) DEFAULT NULL auto_increment PRIMARY KEY, `member_id` int(11) NOT NULL, `role_id` int(11) NOT NULL, `inherited_from` int(11)) ENGINE=InnoDB
+  [1m[36m (192.1ms)[0m  [1mCREATE INDEX `index_member_roles_on_member_id` ON `member_roles` (`member_id`)[0m
+  [1m[35m (218.4ms)[0m  CREATE INDEX `index_member_roles_on_role_id` ON `member_roles` (`role_id`)
+  [1m[36m (107.9ms)[0m  [1mCREATE TABLE `members` (`id` int(11) DEFAULT NULL auto_increment PRIMARY KEY, `user_id` int(11) DEFAULT 0 NOT NULL, `project_id` int(11) DEFAULT 0 NOT NULL, `created_on` datetime, `mail_notification` tinyint(1) DEFAULT 0 NOT NULL) ENGINE=InnoDB[0m
+  [1m[35m (217.4ms)[0m  CREATE INDEX `index_members_on_project_id` ON `members` (`project_id`)
+  [1m[36m (200.5ms)[0m  [1mCREATE UNIQUE INDEX `index_members_on_user_id_and_project_id` ON `members` (`user_id`, `project_id`)[0m
+  [1m[35m (183.7ms)[0m  CREATE INDEX `index_members_on_user_id` ON `members` (`user_id`)
+  [1m[36m (156.8ms)[0m  [1mCREATE TABLE `messages` (`id` int(11) DEFAULT NULL auto_increment PRIMARY KEY, `board_id` int(11) NOT NULL, `parent_id` int(11), `subject` varchar(255) DEFAULT '' NOT NULL, `content` text, `author_id` int(11), `replies_count` int(11) DEFAULT 0 NOT NULL, `last_reply_id` int(11), `created_on` datetime NOT NULL, `updated_on` datetime NOT NULL, `locked` tinyint(1) DEFAULT 0, `sticky` int(11) DEFAULT 0) ENGINE=InnoDB[0m
+  [1m[35m (227.1ms)[0m  CREATE INDEX `index_messages_on_author_id` ON `messages` (`author_id`)
+  [1m[36m (208.7ms)[0m  [1mCREATE INDEX `messages_board_id` ON `messages` (`board_id`)[0m
+  [1m[35m (217.5ms)[0m  CREATE INDEX `index_messages_on_created_on` ON `messages` (`created_on`)
+  [1m[36m (208.7ms)[0m  [1mCREATE INDEX `index_messages_on_last_reply_id` ON `messages` (`last_reply_id`)[0m
+  [1m[35m (208.8ms)[0m  CREATE INDEX `messages_parent_id` ON `messages` (`parent_id`)
+  [1m[36m (116.7ms)[0m  [1mCREATE TABLE `news` (`id` int(11) DEFAULT NULL auto_increment PRIMARY KEY, `project_id` int(11), `title` varchar(60) DEFAULT '' NOT NULL, `summary` varchar(255) DEFAULT '', `description` text, `author_id` int(11) DEFAULT 0 NOT NULL, `created_on` datetime, `comments_count` int(11) DEFAULT 0 NOT NULL) ENGINE=InnoDB[0m
+  [1m[35m (192.4ms)[0m  CREATE INDEX `index_news_on_author_id` ON `news` (`author_id`)
+  [1m[36m (184.3ms)[0m  [1mCREATE INDEX `index_news_on_created_on` ON `news` (`created_on`)[0m
+  [1m[35m (200.8ms)[0m  CREATE INDEX `news_project_id` ON `news` (`project_id`)
+  [1m[36m (99.0ms)[0m  [1mCREATE TABLE `open_id_authentication_associations` (`id` int(11) DEFAULT NULL auto_increment PRIMARY KEY, `issued` int(11), `lifetime` int(11), `handle` varchar(255), `assoc_type` varchar(255), `server_url` blob, `secret` blob) ENGINE=InnoDB[0m
+  [1m[35m (99.6ms)[0m  CREATE TABLE `open_id_authentication_nonces` (`id` int(11) DEFAULT NULL auto_increment PRIMARY KEY, `timestamp` int(11) NOT NULL, `server_url` varchar(255), `salt` varchar(255) NOT NULL) ENGINE=InnoDB
+  [1m[36m (99.4ms)[0m  [1mCREATE TABLE `projects` (`id` int(11) DEFAULT NULL auto_increment PRIMARY KEY, `name` varchar(255) DEFAULT '' NOT NULL, `description` text, `homepage` varchar(255) DEFAULT '', `is_public` tinyint(1) DEFAULT 1 NOT NULL, `parent_id` int(11), `created_on` datetime, `updated_on` datetime, `identifier` varchar(255), `status` int(11) DEFAULT 1 NOT NULL, `lft` int(11), `rgt` int(11)) ENGINE=InnoDB[0m
+  [1m[35m (209.9ms)[0m  CREATE INDEX `index_projects_on_lft` ON `projects` (`lft`)
+  [1m[36m (209.1ms)[0m  [1mCREATE INDEX `index_projects_on_rgt` ON `projects` (`rgt`)[0m
+  [1m[35m (99.7ms)[0m  CREATE TABLE `projects_trackers` (`project_id` int(11) DEFAULT 0 NOT NULL, `tracker_id` int(11) DEFAULT 0 NOT NULL) ENGINE=InnoDB
+  [1m[36m (234.4ms)[0m  [1mCREATE UNIQUE INDEX `projects_trackers_unique` ON `projects_trackers` (`project_id`, `tracker_id`)[0m
+  [1m[35m (200.3ms)[0m  CREATE INDEX `projects_trackers_project_id` ON `projects_trackers` (`project_id`)
+  [1m[36m (115.9ms)[0m  [1mCREATE TABLE `queries` (`id` int(11) DEFAULT NULL auto_increment PRIMARY KEY, `project_id` int(11), `name` varchar(255) DEFAULT '' NOT NULL, `filters` text, `user_id` int(11) DEFAULT 0 NOT NULL, `is_public` tinyint(1) DEFAULT 0 NOT NULL, `column_names` text, `sort_criteria` text, `group_by` varchar(255)) ENGINE=InnoDB[0m
+  [1m[35m (185.4ms)[0m  CREATE INDEX `index_queries_on_project_id` ON `queries` (`project_id`)
+  [1m[36m (200.7ms)[0m  [1mCREATE INDEX `index_queries_on_user_id` ON `queries` (`user_id`)[0m
+  [1m[35m (98.7ms)[0m  CREATE TABLE `repositories` (`id` int(11) DEFAULT NULL auto_increment PRIMARY KEY, `project_id` int(11) DEFAULT 0 NOT NULL, `url` varchar(255) DEFAULT '' NOT NULL, `login` varchar(60) DEFAULT '', `password` varchar(255) DEFAULT '', `root_url` varchar(255) DEFAULT '', `type` varchar(255), `path_encoding` varchar(64), `log_encoding` varchar(64)) ENGINE=InnoDB
+  [1m[36m (200.7ms)[0m  [1mCREATE INDEX `index_repositories_on_project_id` ON `repositories` (`project_id`)[0m
+  [1m[35m (107.8ms)[0m  CREATE TABLE `roles` (`id` int(11) DEFAULT NULL auto_increment PRIMARY KEY, `name` varchar(30) DEFAULT '' NOT NULL, `position` int(11) DEFAULT 1, `assignable` tinyint(1) DEFAULT 1, `builtin` int(11) DEFAULT 0 NOT NULL, `permissions` text) ENGINE=InnoDB
+  [1m[36m (107.9ms)[0m  [1mCREATE TABLE `settings` (`id` int(11) DEFAULT NULL auto_increment PRIMARY KEY, `name` varchar(255) DEFAULT '' NOT NULL, `value` text, `updated_on` datetime) ENGINE=InnoDB[0m
+  [1m[35m (344.5ms)[0m  CREATE INDEX `index_settings_on_name` ON `settings` (`name`)
+  [1m[36m (147.1ms)[0m  [1mCREATE TABLE `time_entries` (`id` int(11) DEFAULT NULL auto_increment PRIMARY KEY, `project_id` int(11) NOT NULL, `user_id` int(11) NOT NULL, `issue_id` int(11), `hours` float NOT NULL, `comments` varchar(255), `activity_id` int(11) NOT NULL, `spent_on` date NOT NULL, `tyear` int(11) NOT NULL, `tmonth` int(11) NOT NULL, `tweek` int(11) NOT NULL, `created_on` datetime NOT NULL, `updated_on` datetime NOT NULL) ENGINE=InnoDB[0m
+  [1m[35m (203.3ms)[0m  CREATE INDEX `index_time_entries_on_activity_id` ON `time_entries` (`activity_id`)
+  [1m[36m (200.4ms)[0m  [1mCREATE INDEX `index_time_entries_on_created_on` ON `time_entries` (`created_on`)[0m
+  [1m[35m (233.7ms)[0m  CREATE INDEX `time_entries_issue_id` ON `time_entries` (`issue_id`)
+  [1m[36m (193.6ms)[0m  [1mCREATE INDEX `time_entries_project_id` ON `time_entries` (`project_id`)[0m
+  [1m[35m (575.9ms)[0m  CREATE INDEX `index_time_entries_on_user_id` ON `time_entries` (`user_id`)
+  [1m[36m (358.0ms)[0m  [1mCREATE TABLE `tokens` (`id` int(11) DEFAULT NULL auto_increment PRIMARY KEY, `user_id` int(11) DEFAULT 0 NOT NULL, `action` varchar(30) DEFAULT '' NOT NULL, `value` varchar(40) DEFAULT '' NOT NULL, `created_on` datetime NOT NULL) ENGINE=InnoDB[0m
+  [1m[35m (234.2ms)[0m  CREATE INDEX `index_tokens_on_user_id` ON `tokens` (`user_id`)
+  [1m[36m (90.9ms)[0m  [1mCREATE TABLE `trackers` (`id` int(11) DEFAULT NULL auto_increment PRIMARY KEY, `name` varchar(30) DEFAULT '' NOT NULL, `is_in_chlog` tinyint(1) DEFAULT 0 NOT NULL, `position` int(11) DEFAULT 1, `is_in_roadmap` tinyint(1) DEFAULT 1 NOT NULL) ENGINE=InnoDB[0m
+  [1m[35m (99.3ms)[0m  CREATE TABLE `user_preferences` (`id` int(11) DEFAULT NULL auto_increment PRIMARY KEY, `user_id` int(11) DEFAULT 0 NOT NULL, `others` text, `hide_mail` tinyint(1) DEFAULT 0, `time_zone` varchar(255)) ENGINE=InnoDB
+  [1m[36m (202.0ms)[0m  [1mCREATE INDEX `index_user_preferences_on_user_id` ON `user_preferences` (`user_id`)[0m
+  [1m[35m (99.3ms)[0m  CREATE TABLE `users` (`id` int(11) DEFAULT NULL auto_increment PRIMARY KEY, `login` varchar(30) DEFAULT '' NOT NULL, `hashed_password` varchar(40) DEFAULT '' NOT NULL, `firstname` varchar(30) DEFAULT '' NOT NULL, `lastname` varchar(30) DEFAULT '' NOT NULL, `mail` varchar(60) DEFAULT '' NOT NULL, `admin` tinyint(1) DEFAULT 0 NOT NULL, `status` int(11) DEFAULT 1 NOT NULL, `last_login_on` datetime, `language` varchar(5) DEFAULT '', `auth_source_id` int(11), `created_on` datetime, `updated_on` datetime, `type` varchar(255), `identity_url` varchar(255), `mail_notification` varchar(255) DEFAULT '' NOT NULL, `salt` varchar(64)) ENGINE=InnoDB
+  [1m[36m (225.9ms)[0m  [1mCREATE INDEX `index_users_on_auth_source_id` ON `users` (`auth_source_id`)[0m
+  [1m[35m (225.3ms)[0m  CREATE INDEX `index_users_on_id_and_type` ON `users` (`id`, `type`)
+  [1m[36m (192.0ms)[0m  [1mCREATE INDEX `index_users_on_type` ON `users` (`type`)[0m
+  [1m[35m (98.7ms)[0m  CREATE TABLE `versions` (`id` int(11) DEFAULT NULL auto_increment PRIMARY KEY, `project_id` int(11) DEFAULT 0 NOT NULL, `name` varchar(255) DEFAULT '' NOT NULL, `description` varchar(255) DEFAULT '', `effective_date` date, `created_on` datetime, `updated_on` datetime, `wiki_page_title` varchar(255), `status` varchar(255) DEFAULT 'open', `sharing` varchar(255) DEFAULT 'none' NOT NULL, `start_date` date) ENGINE=InnoDB
+  [1m[36m (201.9ms)[0m  [1mCREATE INDEX `versions_project_id` ON `versions` (`project_id`)[0m
+  [1m[35m (209.0ms)[0m  CREATE INDEX `index_versions_on_sharing` ON `versions` (`sharing`)
+  [1m[36m (99.5ms)[0m  [1mCREATE TABLE `watchers` (`id` int(11) DEFAULT NULL auto_increment PRIMARY KEY, `watchable_type` varchar(255) DEFAULT '' NOT NULL, `watchable_id` int(11) DEFAULT 0 NOT NULL, `user_id` int(11)) ENGINE=InnoDB[0m
+  [1m[35m (192.2ms)[0m  CREATE INDEX `watchers_user_id_type` ON `watchers` (`user_id`, `watchable_type`)
+  [1m[36m (200.4ms)[0m  [1mCREATE INDEX `index_watchers_on_user_id` ON `watchers` (`user_id`)[0m
+  [1m[35m (208.5ms)[0m  CREATE INDEX `index_watchers_on_watchable_id_and_watchable_type` ON `watchers` (`watchable_id`, `watchable_type`)
+  [1m[36m (99.8ms)[0m  [1mCREATE TABLE `wiki_content_versions` (`id` int(11) DEFAULT NULL auto_increment PRIMARY KEY, `wiki_content_id` int(11) NOT NULL, `page_id` int(11) NOT NULL, `author_id` int(11), `data` blob(16777216), `compression` varchar(6) DEFAULT '', `comments` varchar(255) DEFAULT '', `updated_on` datetime NOT NULL, `version` int(11) NOT NULL) ENGINE=InnoDB[0m
+  [1m[35m (200.8ms)[0m  CREATE INDEX `index_wiki_content_versions_on_updated_on` ON `wiki_content_versions` (`updated_on`)
+  [1m[36m (192.4ms)[0m  [1mCREATE INDEX `wiki_content_versions_wcid` ON `wiki_content_versions` (`wiki_content_id`)[0m
+  [1m[35m (107.8ms)[0m  CREATE TABLE `wiki_contents` (`id` int(11) DEFAULT NULL auto_increment PRIMARY KEY, `page_id` int(11) NOT NULL, `author_id` int(11), `text` longtext, `updated_on` datetime NOT NULL, `lock_version` int(11) NOT NULL) ENGINE=InnoDB
+  [1m[36m (200.9ms)[0m  [1mCREATE INDEX `index_wiki_contents_on_author_id` ON `wiki_contents` (`author_id`)[0m
+  [1m[35m (200.3ms)[0m  CREATE INDEX `wiki_contents_page_id` ON `wiki_contents` (`page_id`)
+  [1m[36m (117.6ms)[0m  [1mCREATE TABLE `wiki_pages` (`id` int(11) DEFAULT NULL auto_increment PRIMARY KEY, `wiki_id` int(11) NOT NULL, `title` varchar(255) NOT NULL, `created_on` datetime NOT NULL, `protected` tinyint(1) DEFAULT 0 NOT NULL, `parent_id` int(11)) ENGINE=InnoDB[0m
+  [1m[35m (192.4ms)[0m  CREATE INDEX `index_wiki_pages_on_parent_id` ON `wiki_pages` (`parent_id`)
+  [1m[36m (200.8ms)[0m  [1mCREATE INDEX `wiki_pages_wiki_id_title` ON `wiki_pages` (`wiki_id`, `title`)[0m
+  [1m[35m (208.9ms)[0m  CREATE INDEX `index_wiki_pages_on_wiki_id` ON `wiki_pages` (`wiki_id`)
+  [1m[36m (99.4ms)[0m  [1mCREATE TABLE `wiki_redirects` (`id` int(11) DEFAULT NULL auto_increment PRIMARY KEY, `wiki_id` int(11) NOT NULL, `title` varchar(255), `redirects_to` varchar(255), `created_on` datetime NOT NULL) ENGINE=InnoDB[0m
+  [1m[35m (217.1ms)[0m  CREATE INDEX `wiki_redirects_wiki_id_title` ON `wiki_redirects` (`wiki_id`, `title`)
+  [1m[36m (201.9ms)[0m  [1mCREATE INDEX `index_wiki_redirects_on_wiki_id` ON `wiki_redirects` (`wiki_id`)[0m
+  [1m[35m (99.3ms)[0m  CREATE TABLE `wikis` (`id` int(11) DEFAULT NULL auto_increment PRIMARY KEY, `project_id` int(11) NOT NULL, `start_page` varchar(255) NOT NULL, `status` int(11) DEFAULT 1 NOT NULL) ENGINE=InnoDB
+  [1m[36m (267.7ms)[0m  [1mCREATE INDEX `wikis_project_id` ON `wikis` (`project_id`)[0m
+  [1m[35m (482.4ms)[0m  CREATE TABLE `workflows` (`id` int(11) DEFAULT NULL auto_increment PRIMARY KEY, `tracker_id` int(11) DEFAULT 0 NOT NULL, `old_status_id` int(11) DEFAULT 0 NOT NULL, `new_status_id` int(11) DEFAULT 0 NOT NULL, `role_id` int(11) DEFAULT 0 NOT NULL, `assignee` tinyint(1) DEFAULT 0 NOT NULL, `author` tinyint(1) DEFAULT 0 NOT NULL) ENGINE=InnoDB
+  [1m[36m (209.2ms)[0m  [1mCREATE INDEX `index_workflows_on_new_status_id` ON `workflows` (`new_status_id`)[0m
+  [1m[35m (218.6ms)[0m  CREATE INDEX `index_workflows_on_old_status_id` ON `workflows` (`old_status_id`)
+  [1m[36m (192.3ms)[0m  [1mCREATE INDEX `wkfs_role_tracker_old_status` ON `workflows` (`role_id`, `tracker_id`, `old_status_id`)[0m
+  [1m[35m (200.5ms)[0m  CREATE INDEX `index_workflows_on_role_id` ON `workflows` (`role_id`)
+  [1m[36m (41.6ms)[0m  [1mINSERT INTO `schema_migrations` (`version`) VALUES ('0')[0m
+Migrating to AddSummaryToProjects (20110211160100)
+  [1m[35m (216.4ms)[0m  ALTER TABLE `projects` ADD `summary` text
+  [1m[36m (49.4ms)[0m  [1mINSERT INTO `schema_migrations` (`version`) VALUES ('20110211160100')[0m
+Migrating to AddDisplaySumsFieldToMigration (20110817142220)
+  [1m[35m (209.7ms)[0m  ALTER TABLE `queries` ADD `display_sums` tinyint(1)
+  [1m[36m (41.2ms)[0m  [1mINSERT INTO `schema_migrations` (`version`) VALUES ('20110817142220')[0m
+Migrating to AddUserFirstLoggedInAndImpairedFields (20111114124552)
+  [1m[35m (217.1ms)[0m  ALTER TABLE `users` ADD `first_login` tinyint(1) DEFAULT 1 NOT NULL
+  [1m[36m (209.6ms)[0m  [1mALTER TABLE `user_preferences` ADD `impaired` tinyint(1) DEFAULT 0[0m
+  [1m[35m (41.2ms)[0m  INSERT INTO `schema_migrations` (`version`) VALUES ('20111114124552')
+Migrating to LocalizeEmailHeaderAndFooter (20120319095930)
+  [1m[36mSetting Load (0.5ms)[0m  [1mSELECT `settings`.* FROM `settings` WHERE `settings`.`name` = 'emails_header' LIMIT 1[0m
+  [1m[35mSetting Load (0.3ms)[0m  SELECT `settings`.* FROM `settings` WHERE `settings`.`name` = 'emails_footer' LIMIT 1
+  [1m[36m (0.2ms)[0m  [1mSELECT MAX(`settings`.`updated_on`) AS max_id FROM `settings` [0m
+  [1m[35mSetting Load (0.2ms)[0m  SELECT `settings`.* FROM `settings` WHERE `settings`.`name` = 'default_language' LIMIT 1
+  [1m[36m (65.1ms)[0m  [1mINSERT INTO `schema_migrations` (`version`) VALUES ('20120319095930')[0m
+Migrating to AddCustomFieldTranslationTable (20120319135006)
+  [1m[35m (113.6ms)[0m  CREATE TABLE `custom_field_translations` (`id` int(11) DEFAULT NULL auto_increment PRIMARY KEY, `custom_field_id` int(11) NOT NULL, `locale` varchar(255) NOT NULL, `created_at` datetime NOT NULL, `updated_at` datetime NOT NULL) ENGINE=InnoDB
+  [1m[36m (186.0ms)[0m  [1mALTER TABLE `custom_field_translations` ADD `name` varchar(255)[0m
+  [1m[35m (176.5ms)[0m  ALTER TABLE `custom_field_translations` ADD `default_value` text
+  [1m[36m (176.5ms)[0m  [1mALTER TABLE `custom_field_translations` ADD `possible_values` text[0m
+  [1m[35m (182.7ms)[0m  CREATE INDEX `index_custom_field_translations_on_custom_field_id` ON `custom_field_translations` (`custom_field_id`)
+  [1m[36m (192.1ms)[0m  [1mCREATE INDEX `index_custom_field_translations_on_locale` ON `custom_field_translations` (`locale`)[0m
+  [1m[35m (0.1ms)[0m  SELECT MAX(`settings`.`updated_on`) AS max_id FROM `settings` 
+  [1m[36mSetting Load (0.1ms)[0m  [1mSELECT `settings`.* FROM `settings` WHERE `settings`.`name` = 'default_language' LIMIT 1[0m
+  [1m[35mCustomField Load (0.2ms)[0m  SELECT `custom_fields`.* FROM `custom_fields` 
+  [1m[36m (205.4ms)[0m  [1mALTER TABLE `custom_fields` DROP `name`[0m
+  [1m[35m (201.5ms)[0m  ALTER TABLE `custom_fields` DROP `default_value`
+  [1m[36m (210.0ms)[0m  [1mALTER TABLE `custom_fields` DROP `possible_values`[0m
+  [1m[35m (24.2ms)[0m  INSERT INTO `schema_migrations` (`version`) VALUES ('20120319135006')
+Migrating to CreateDelayedJobs (20120529090411)
+  [1m[36m (114.0ms)[0m  [1mCREATE TABLE `delayed_jobs` (`id` int(11) DEFAULT NULL auto_increment PRIMARY KEY, `priority` int(11) DEFAULT 0, `attempts` int(11) DEFAULT 0, `handler` text, `last_error` text, `run_at` datetime, `locked_at` datetime, `failed_at` datetime, `locked_by` varchar(255), `created_at` datetime NOT NULL, `updated_at` datetime NOT NULL) ENGINE=InnoDB[0m
+  [1m[35m (202.0ms)[0m  CREATE INDEX `delayed_jobs_priority` ON `delayed_jobs` (`priority`, `run_at`)
+  [1m[36m (33.1ms)[0m  [1mINSERT INTO `schema_migrations` (`version`) VALUES ('20120529090411')[0m
+Migrating to UseTheFullStiClassNamesForRepositories (20120731091543)
+  [1m[35mSQL (0.2ms)[0m  UPDATE `repositories` SET type = CONCAT('Repository::', type) WHERE (type NOT LIKE 'Repository::%')
+  [1m[36m (48.6ms)[0m  [1mINSERT INTO `schema_migrations` (`version`) VALUES ('20120731091543')[0m
+Migrating to CreateWikiMenuItems (20120731135140)
+  [1m[35m (98.5ms)[0m  CREATE TABLE `wiki_menu_items` (`id` int(11) DEFAULT NULL auto_increment PRIMARY KEY, `name` varchar(255), `title` varchar(255), `parent_id` int(11), `options` text, `wiki_id` int(11)) ENGINE=InnoDB
+  [1m[36m (32.9ms)[0m  [1mINSERT INTO `schema_migrations` (`version`) VALUES ('20120731135140')[0m
+Migrating to RenameAuthSourceLdap (20120802152122)
+  [1m[35mSQL (0.1ms)[0m  UPDATE `auth_sources` SET type = 'LdapAuthSource' WHERE (type = 'AuthSourceLdap')
+  [1m[36m (101.1ms)[0m  [1mINSERT INTO `schema_migrations` (`version`) VALUES ('20120802152122')[0m
+Migrating to CreateWikiMenuItemForExistingWikis (20120809131659)
+  [1m[35mWiki Load (0.2ms)[0m  SELECT `wikis`.* FROM `wikis` 
+  [1m[36m (104.7ms)[0m  [1mINSERT INTO `schema_migrations` (`version`) VALUES ('20120809131659')[0m
+Migrating to MakeGroupsUsersAModel (20120828171423)
+  [1m[35m (531.3ms)[0m  DROP INDEX `groups_users_ids` ON `groups_users`
+  [1m[36m (74.2ms)[0m  [1mRENAME TABLE `groups_users` TO `group_users`[0m
+  [1m[35m (302.1ms)[0m  CREATE UNIQUE INDEX `group_user_ids` ON `group_users` (`group_id`, `user_id`)
+  [1m[36m (33.1ms)[0m  [1mINSERT INTO `schema_migrations` (`version`) VALUES ('20120828171423')[0m
+Migrating to AddWikiListAttachments (20121004054229)
+  [1m[35m (54.7ms)[0m  INSERT INTO `schema_migrations` (`version`) VALUES ('20121004054229')
+Migrating to RenameActsAsJournalizedChangesColumn (20121030111651)
+  [1m[36m (0.3ms)[0m  [1mSHOW COLUMNS FROM `journals` LIKE 'changes'[0m
+  [1m[35m (223.7ms)[0m  ALTER TABLE `journals` CHANGE `changes` `changed_data` text DEFAULT NULL
+  [1m[36m (24.3ms)[0m  [1mINSERT INTO `schema_migrations` (`version`) VALUES ('20121030111651')[0m
+Migrating to AddMissingIndexesOnWikiMenuItems (20121101111303)
+  [1m[35m (217.4ms)[0m  CREATE INDEX `index_wiki_menu_items_on_wiki_id_and_title` ON `wiki_menu_items` (`wiki_id`, `title`)
+  [1m[36m (200.6ms)[0m  [1mCREATE INDEX `index_wiki_menu_items_on_parent_id` ON `wiki_menu_items` (`parent_id`)[0m
+  [1m[35m (34.5ms)[0m  INSERT INTO `schema_migrations` (`version`) VALUES ('20121101111303')
+Migrating to AddIndexOnIdentifierToProjects (20130204140624)
+  [1m[36m (212.9ms)[0m  [1mCREATE INDEX `index_projects_on_identifier` ON `projects` (`identifier`)[0m
+  [1m[35m (33.1ms)[0m  INSERT INTO `schema_migrations` (`version`) VALUES ('20130204140624')
+Migrating to AddLongerLoginToUsers (20130315124655)
+  [1m[36m (204.1ms)[0m  [1mALTER TABLE `users` CHANGE `login` `login` varchar(256) DEFAULT '' NOT NULL[0m
+  [1m[35m (32.5ms)[0m  INSERT INTO `schema_migrations` (`version`) VALUES ('20130315124655')
+Migrating to RemoveGanttRelatedDataFromDatabase (20130325165622)
+  [1m[36mSQL (0.1ms)[0m  [1mDELETE FROM `enabled_modules` WHERE `enabled_modules`.`name` = 'gantt'[0m
+  [1m[35m (61.0ms)[0m  INSERT INTO `schema_migrations` (`version`) VALUES ('20130325165622')
+Migrating to AddTimelinesProjectTypeIdToProjects (20130409133700)
+  [1m[36m (225.3ms)[0m  [1mALTER TABLE `projects` ADD `timelines_project_type_id` int(11)[0m
+  [1m[35m (176.9ms)[0m  CREATE INDEX `index_projects_on_timelines_project_type_id` ON `projects` (`timelines_project_type_id`)
+  [1m[36m (24.6ms)[0m  [1mINSERT INTO `schema_migrations` (`version`) VALUES ('20130409133700')[0m
+Migrating to CreateTimelinesProjectTypes (20130409133701)
+  [1m[35m (98.0ms)[0m  CREATE TABLE `timelines_project_types` (`id` int(11) DEFAULT NULL auto_increment PRIMARY KEY, `name` varchar(255) DEFAULT '' NOT NULL, `allows_association` tinyint(1) DEFAULT 1 NOT NULL, `position` int(11) DEFAULT 1 NOT NULL, `created_at` datetime NOT NULL, `updated_at` datetime NOT NULL) ENGINE=InnoDB
+  [1m[36m (32.7ms)[0m  [1mINSERT INTO `schema_migrations` (`version`) VALUES ('20130409133701')[0m
+Migrating to CreateTimelinesPlanningElementTypes (20130409133702)
+  [1m[35m (122.7ms)[0m  CREATE TABLE `timelines_planning_element_types` (`id` int(11) DEFAULT NULL auto_increment PRIMARY KEY, `name` varchar(255) NOT NULL, `in_aggregation` tinyint(1) DEFAULT 1 NOT NULL, `is_milestone` tinyint(1) DEFAULT 0 NOT NULL, `is_default` tinyint(1) DEFAULT 0 NOT NULL, `position` int(11) DEFAULT 1 NOT NULL, `color_id` int(11), `project_type_id` int(11), `created_at` datetime NOT NULL, `updated_at` datetime NOT NULL) ENGINE=InnoDB
+  [1m[36m (192.0ms)[0m  [1mCREATE INDEX `index_timelines_planning_element_types_on_color_id` ON `timelines_planning_element_types` (`color_id`)[0m
+  [1m[35m (225.4ms)[0m  CREATE INDEX `index_timelines_planning_element_types_on_project_type_id` ON `timelines_planning_element_types` (`project_type_id`)
+  [1m[36m (33.2ms)[0m  [1mINSERT INTO `schema_migrations` (`version`) VALUES ('20130409133702')[0m
+Migrating to CreateTimelinesPlanningElements (20130409133703)
+  [1m[35m (91.3ms)[0m  CREATE TABLE `timelines_planning_elements` (`id` int(11) DEFAULT NULL auto_increment PRIMARY KEY, `name` varchar(255) NOT NULL, `description` text, `planning_element_status_comment` text, `start_date` date NOT NULL, `end_date` date NOT NULL, `parent_id` int(11), `project_id` int(11), `responsible_id` int(11), `planning_element_type_id` int(11), `planning_element_status_id` int(11), `created_at` datetime NOT NULL, `updated_at` datetime NOT NULL) ENGINE=InnoDB
+  [1m[36m (192.3ms)[0m  [1mCREATE INDEX `index_timelines_planning_elements_on_parent_id` ON `timelines_planning_elements` (`parent_id`)[0m
+  [1m[35m (192.3ms)[0m  CREATE INDEX `index_timelines_planning_elements_on_project_id` ON `timelines_planning_elements` (`project_id`)
+  [1m[36m (200.4ms)[0m  [1mCREATE INDEX `index_timelines_planning_elements_on_responsible_id` ON `timelines_planning_elements` (`responsible_id`)[0m
+  [1m[35m (217.4ms)[0m  CREATE INDEX `index_timelines_planning_elements_on_planning_element_type_id` ON `timelines_planning_elements` (`planning_element_type_id`)
+  [1m[36m (235.0ms)[0m  [1mCREATE INDEX `index_timelines_planning_elements_on_planning_element_status_id` ON `timelines_planning_elements` (`planning_element_status_id`)[0m
+  [1m[35m (41.4ms)[0m  INSERT INTO `schema_migrations` (`version`) VALUES ('20130409133703')
+Migrating to CreateTimelinesScenarios (20130409133704)
+  [1m[36m (98.5ms)[0m  [1mCREATE TABLE `timelines_scenarios` (`id` int(11) DEFAULT NULL auto_increment PRIMARY KEY, `name` varchar(255) NOT NULL, `description` text, `project_id` int(11), `created_at` datetime NOT NULL, `updated_at` datetime NOT NULL) ENGINE=InnoDB[0m
+  [1m[35m (184.0ms)[0m  CREATE INDEX `index_timelines_scenarios_on_project_id` ON `timelines_scenarios` (`project_id`)
+  [1m[36m (33.2ms)[0m  [1mINSERT INTO `schema_migrations` (`version`) VALUES ('20130409133704')[0m
+Migrating to CreateTimelinesAlternateDates (20130409133705)
+  [1m[35m (90.3ms)[0m  CREATE TABLE `timelines_alternate_dates` (`id` int(11) DEFAULT NULL auto_increment PRIMARY KEY, `start_date` date NOT NULL, `end_date` date NOT NULL, `scenario_id` int(11), `planning_element_id` int(11), `created_at` datetime NOT NULL, `updated_at` datetime NOT NULL) ENGINE=InnoDB
+  [1m[36m (208.0ms)[0m  [1mCREATE INDEX `index_timelines_alternate_dates_on_planning_element_id` ON `timelines_alternate_dates` (`planning_element_id`)[0m
+  [1m[35m (460.4ms)[0m  CREATE INDEX `index_timelines_alternate_dates_on_scenario_id` ON `timelines_alternate_dates` (`scenario_id`)
+  [1m[36m (33.1ms)[0m  [1mINSERT INTO `schema_migrations` (`version`) VALUES ('20130409133705')[0m
+Migrating to AddTimelinesResponsibleIdToProjects (20130409133706)
+  [1m[35m (183.3ms)[0m  ALTER TABLE `projects` ADD `timelines_responsible_id` int(11)
+  [1m[36m (142.3ms)[0m  [1mCREATE INDEX `index_projects_on_timelines_responsible_id` ON `projects` (`timelines_responsible_id`)[0m
+  [1m[35m (32.9ms)[0m  INSERT INTO `schema_migrations` (`version`) VALUES ('20130409133706')
+Migrating to CreateTimelinesColors (20130409133707)
+  [1m[36m (90.5ms)[0m  [1mCREATE TABLE `timelines_colors` (`id` int(11) DEFAULT NULL auto_increment PRIMARY KEY, `name` varchar(255) NOT NULL, `hexcode` varchar(255) NOT NULL, `position` int(11) DEFAULT 1 NOT NULL, `created_at` datetime NOT NULL, `updated_at` datetime NOT NULL) ENGINE=InnoDB[0m
+  [1m[35m (32.9ms)[0m  INSERT INTO `schema_migrations` (`version`) VALUES ('20130409133707')
+Migrating to CreateTimelinesReportings (20130409133708)
+  [1m[36m (81.7ms)[0m  [1mCREATE TABLE `timelines_reportings` (`id` int(11) DEFAULT NULL auto_increment PRIMARY KEY, `reported_project_status_comment` text, `project_id` int(11), `reporting_to_project_id` int(11), `reported_project_status_id` int(11), `created_at` datetime NOT NULL, `updated_at` datetime NOT NULL) ENGINE=InnoDB[0m
+  [1m[35m (160.2ms)[0m  CREATE INDEX `index_timelines_reportings_on_project_id` ON `timelines_reportings` (`project_id`)
+  [1m[36m (150.5ms)[0m  [1mCREATE INDEX `index_timelines_reportings_on_reporting_to_project_id` ON `timelines_reportings` (`reporting_to_project_id`)[0m
+  [1m[35m (158.7ms)[0m  CREATE INDEX `index_timelines_reportings_on_reported_project_status_id` ON `timelines_reportings` (`reported_project_status_id`)
+  [1m[36m (33.3ms)[0m  [1mINSERT INTO `schema_migrations` (`version`) VALUES ('20130409133708')[0m
+Migrating to CreateTimelinesAvailableProjectStatuses (20130409133709)
+  [1m[35m (89.7ms)[0m  CREATE TABLE `timelines_available_project_statuses` (`id` int(11) DEFAULT NULL auto_increment PRIMARY KEY, `project_type_id` int(11), `reported_project_status_id` int(11), `created_at` datetime NOT NULL, `updated_at` datetime NOT NULL) ENGINE=InnoDB
+  [1m[36m (159.1ms)[0m  [1mCREATE INDEX `index_timelines_available_project_statuses_on_project_type_id` ON `timelines_available_project_statuses` (`project_type_id`)[0m
+  [1m[35m (159.9ms)[0m  CREATE INDEX `index_avail_project_statuses_on_rep_project_status_id` ON `timelines_available_project_statuses` (`reported_project_status_id`)
+  [1m[36m (33.2ms)[0m  [1mINSERT INTO `schema_migrations` (`version`) VALUES ('20130409133709')[0m
+Migrating to CreateTimelinesProjectAssociations (20130409133710)
+  [1m[35m (81.5ms)[0m  CREATE TABLE `timelines_project_associations` (`id` int(11) DEFAULT NULL auto_increment PRIMARY KEY, `project_a_id` int(11), `project_b_id` int(11), `description` text, `created_at` datetime NOT NULL, `updated_at` datetime NOT NULL) ENGINE=InnoDB
+  [1m[36m (150.6ms)[0m  [1mCREATE INDEX `index_timelines_project_associations_on_project_a_id` ON `timelines_project_associations` (`project_a_id`)[0m
+  [1m[35m (167.4ms)[0m  CREATE INDEX `index_timelines_project_associations_on_project_b_id` ON `timelines_project_associations` (`project_b_id`)
+  [1m[36m (32.9ms)[0m  [1mINSERT INTO `schema_migrations` (`version`) VALUES ('20130409133710')[0m
+Migrating to CreateTimelinesEnabledPlanningElementTypes (20130409133711)
+  [1m[35m (72.5ms)[0m  CREATE TABLE `timelines_enabled_planning_element_types` (`id` int(11) DEFAULT NULL auto_increment PRIMARY KEY, `project_id` int(11), `planning_element_type_id` int(11), `created_at` datetime NOT NULL, `updated_at` datetime NOT NULL) ENGINE=InnoDB
+  [1m[36m (161.8ms)[0m  [1mCREATE INDEX `index_timelines_enabled_planning_element_types_on_project_id` ON `timelines_enabled_planning_element_types` (`project_id`)[0m
+  [1m[35m (150.5ms)[0m  CREATE INDEX `index_enabled_pe_types_on_pe_type_id` ON `timelines_enabled_planning_element_types` (`planning_element_type_id`)
+  [1m[36m (33.1ms)[0m  [1mINSERT INTO `schema_migrations` (`version`) VALUES ('20130409133711')[0m
+Migrating to CreateTimelinesDefaultPlanningElementTypes (20130409133712)
+  [1m[35m (106.7ms)[0m  CREATE TABLE `timelines_default_planning_element_types` (`id` int(11) DEFAULT NULL auto_increment PRIMARY KEY, `project_type_id` int(11), `planning_element_type_id` int(11), `created_at` datetime NOT NULL, `updated_at` datetime NOT NULL) ENGINE=InnoDB
+  [1m[36m (158.8ms)[0m  [1mCREATE INDEX `index_default_pe_types_on_project_type_id` ON `timelines_default_planning_element_types` (`project_type_id`)[0m
+  [1m[35m (175.5ms)[0m  CREATE INDEX `index_default_pe_types_on_pe_type_id` ON `timelines_default_planning_element_types` (`planning_element_type_id`)
+  [1m[36m (33.0ms)[0m  [1mINSERT INTO `schema_migrations` (`version`) VALUES ('20130409133712')[0m
+Migrating to MigratePlanningElementTypeToProjectAssociation (20130409133713)
+  [1m[35mSQL (0.2ms)[0m  DELETE FROM `timelines_default_planning_element_types`
+  [1m[36mSQL (0.2ms)[0m  [1mDELETE FROM `timelines_enabled_planning_element_types`[0m
+  [1m[35mMigratePlanningElementTypeToProjectAssociation::PlanningElementType Load (0.2ms)[0m  SELECT `timelines_planning_element_types`.* FROM `timelines_planning_element_types` 
+  [1m[36m (39.1ms)[0m  [1mINSERT INTO `schema_migrations` (`version`) VALUES ('20130409133713')[0m
+Migrating to RemoveProjectTypeIdFromTimelinesPlanningElementTypes (20130409133714)
+  [1m[35m (185.0ms)[0m  ALTER TABLE `timelines_planning_element_types` DROP `project_type_id`
+  [1m[36m (32.8ms)[0m  [1mINSERT INTO `schema_migrations` (`version`) VALUES ('20130409133714')[0m
+Migrating to CreateTimelinesTimelines (20130409133715)
+  [1m[35m (89.6ms)[0m  CREATE TABLE `timelines_timelines` (`id` int(11) DEFAULT NULL auto_increment PRIMARY KEY, `name` varchar(255) NOT NULL, `content` text, `project_id` int(11), `created_at` datetime NOT NULL, `updated_at` datetime NOT NULL) ENGINE=InnoDB
+  [1m[36m (150.5ms)[0m  [1mCREATE INDEX `index_timelines_timelines_on_project_id` ON `timelines_timelines` (`project_id`)[0m
+  [1m[35m (41.4ms)[0m  INSERT INTO `schema_migrations` (`version`) VALUES ('20130409133715')
+Migrating to AddOptionsToTimelinesTimelines (20130409133717)
+  [1m[36m (214.4ms)[0m  [1mALTER TABLE `timelines_timelines` ADD `options` text[0m
+  [1m[35m (32.8ms)[0m  INSERT INTO `schema_migrations` (`version`) VALUES ('20130409133717')
+Migrating to RemoveContentFromTimelinesTimelines (20130409133718)
+  [1m[36m (410.0ms)[0m  [1mALTER TABLE `timelines_timelines` DROP `content`[0m
+  [1m[35m (32.6ms)[0m  INSERT INTO `schema_migrations` (`version`) VALUES ('20130409133718')
+Migrating to AddIndexesToTimelinesAlternateDatesToSecureAtScope (20130409133719)
+  [1m[36m (166.2ms)[0m  [1mCREATE UNIQUE INDEX `index_ad_on_updated_at_and_planning_element_id` ON `timelines_alternate_dates` (`updated_at`, `planning_element_id`, `scenario_id`)[0m
+  [1m[35m (32.9ms)[0m  INSERT INTO `schema_migrations` (`version`) VALUES ('20130409133719')
+Migrating to AddDeletedAtToTimelinesPlanningElements (20130409133720)
+  [1m[36m (211.1ms)[0m  [1mALTER TABLE `timelines_planning_elements` ADD `deleted_at` datetime[0m
+  [1m[35m (41.1ms)[0m  INSERT INTO `schema_migrations` (`version`) VALUES ('20130409133720')
+Migrating to AllowNullPositionInColors (20130409133721)
+  [1m[36m (533.4ms)[0m  [1mALTER TABLE `timelines_colors` CHANGE `position` `position` int(11) DEFAULT 1[0m
+  [1m[35m (32.8ms)[0m  INSERT INTO `schema_migrations` (`version`) VALUES ('20130409133721')
+Migrating to AllowNullPositionInPlanningElementTypes (20130409133722)
+  [1m[36m (367.1ms)[0m  [1mALTER TABLE `timelines_planning_element_types` CHANGE `position` `position` int(11) DEFAULT 1[0m
+  [1m[35m (56.9ms)[0m  INSERT INTO `schema_migrations` (`version`) VALUES ('20130409133722')
+Migrating to AllowNullPositionInProjectTypes (20130409133723)
+  [1m[36m (272.1ms)[0m  [1mALTER TABLE `timelines_project_types` CHANGE `position` `position` int(11) DEFAULT 1[0m
+  [1m[35m (32.9ms)[0m  INSERT INTO `schema_migrations` (`version`) VALUES ('20130409133723')
+Migrating to RemoveTimelinesNamespace (20130611154020)
+  [1m[36m (31.1ms)[0m  [1mRENAME TABLE `timelines_alternate_dates` TO `alternate_dates`[0m
+  [1m[35m (33.0ms)[0m  RENAME TABLE `timelines_available_project_statuses` TO `available_project_statuses`
+  [1m[36m (41.6ms)[0m  [1mRENAME TABLE `timelines_colors` TO `planning_element_type_colors`[0m
+  [1m[35m (33.3ms)[0m  RENAME TABLE `timelines_default_planning_element_types` TO `default_planning_element_types`
+  [1m[36m (33.2ms)[0m  [1mRENAME TABLE `timelines_enabled_planning_element_types` TO `enabled_planning_element_types`[0m
+  [1m[35m (33.2ms)[0m  RENAME TABLE `timelines_planning_element_types` TO `planning_element_types`
+  [1m[36m (33.2ms)[0m  [1mRENAME TABLE `timelines_planning_elements` TO `planning_elements`[0m
+  [1m[35m (26.2ms)[0m  RENAME TABLE `timelines_project_associations` TO `project_associations`
+  [1m[36m (33.2ms)[0m  [1mRENAME TABLE `timelines_project_types` TO `project_types`[0m
+  [1m[35m (33.2ms)[0m  RENAME TABLE `timelines_reportings` TO `reportings`
+  [1m[36m (41.6ms)[0m  [1mRENAME TABLE `timelines_scenarios` TO `scenarios`[0m
+  [1m[35m (33.2ms)[0m  RENAME TABLE `timelines_timelines` TO `timelines`
+  [1m[36m (0.4ms)[0m  [1mSHOW COLUMNS FROM `projects` LIKE 'timelines_project_type_id'[0m
+  [1m[35m (199.5ms)[0m  ALTER TABLE `projects` CHANGE `timelines_project_type_id` `project_type_id` int(11) DEFAULT NULL
+  [1m[36m (0.3ms)[0m  [1mSHOW COLUMNS FROM `projects` LIKE 'timelines_responsible_id'[0m
+  [1m[35m (200.0ms)[0m  ALTER TABLE `projects` CHANGE `timelines_responsible_id` `responsible_id` int(11) DEFAULT NULL
+  [1m[36m (74.1ms)[0m  [1mINSERT INTO `schema_migrations` (`version`) VALUES ('20130611154020')[0m
+Migrating to AddForcePasswordChangeToUser (20130613075253)
+  [1m[35m (218.6ms)[0m  ALTER TABLE `users` ADD `force_password_change` tinyint(1) DEFAULT 0
+  [1m[36m (32.4ms)[0m  [1mINSERT INTO `schema_migrations` (`version`) VALUES ('20130613075253')[0m
+Migrating to CreateUserPasswords (20130619081234)
+  [1m[35m (82.8ms)[0m  CREATE TABLE `user_passwords` (`id` int(11) DEFAULT NULL auto_increment PRIMARY KEY, `user_id` int(11) NOT NULL, `hashed_password` varchar(40), `salt` varchar(64), `created_at` datetime NOT NULL, `updated_at` datetime NOT NULL) ENGINE=InnoDB
+  [1m[36m (175.7ms)[0m  [1mCREATE INDEX `index_user_passwords_on_user_id` ON `user_passwords` (`user_id`)[0m
+Creating scope :active. Overwriting existing method Principal.active.
+Creating scope :active_or_registered. Overwriting existing method Principal.active_or_registered.
+Creating scope :active_or_registered_like. Overwriting existing method Principal.active_or_registered_like.
+Creating scope :not_in_project. Overwriting existing method Principal.not_in_project.
+Creating scope :like. Overwriting existing method Principal.like.
+Creating scope :visible_by. Overwriting existing method Principal.visible_by.
+  [1m[35mUser Load (0.2ms)[0m  SELECT `users`.* FROM `users` WHERE `users`.`type` IN ('User', 'AnonymousUser', 'DeletedUser') ORDER BY `users`.`id` ASC LIMIT 1000
+  [1m[36m (197.7ms)[0m  [1mALTER TABLE `users` DROP `hashed_password`[0m
+  [1m[35m (201.5ms)[0m  ALTER TABLE `users` DROP `salt`
+  [1m[36m (54.3ms)[0m  [1mINSERT INTO `schema_migrations` (`version`) VALUES ('20130619081234')[0m
+Migrating to CreateWorkPackages (20130620082322)
+  [1m[35m (115.6ms)[0m  CREATE TABLE `work_packages` (`id` int(11) DEFAULT NULL auto_increment PRIMARY KEY, `tracker_id` int(11) DEFAULT 0 NOT NULL, `project_id` int(11), `subject` varchar(255) DEFAULT '' NOT NULL, `description` text, `due_date` date, `category_id` int(11), `status_id` int(11) DEFAULT 0 NOT NULL, `assigned_to_id` int(11), `priority_id` int(11) DEFAULT 0 NOT NULL, `fixed_version_id` int(11), `author_id` int(11) DEFAULT 0 NOT NULL, `lock_version` int(11) DEFAULT 0 NOT NULL, `done_ratio` int(11) DEFAULT 0 NOT NULL, `estimated_hours` float, `created_at` datetime, `updated_at` datetime, `start_date` date, `end_date` date, `planning_element_status_comment` text, `deleted_at` datetime, `parent_id` int(11), `responsible_id` int(11), `planning_element_type_id` int(11), `planning_element_status_id` int(11), `type` varchar(255), `root_id` int(11), `lft` int(11), `rgt` int(11)) ENGINE=InnoDB
+  [1m[36m (208.0ms)[0m  [1mALTER TABLE `work_packages` CHANGE `project_id` `project_id` int(11) DEFAULT 0 NOT NULL[0m
+  [1m[35m (167.2ms)[0m  CREATE INDEX `index_work_packages_on_parent_id` ON `work_packages` (`parent_id`)
+  [1m[36m (158.8ms)[0m  [1mCREATE INDEX `index_work_packages_on_project_id` ON `work_packages` (`project_id`)[0m
+  [1m[35m (166.9ms)[0m  CREATE INDEX `index_work_packages_on_responsible_id` ON `work_packages` (`responsible_id`)
+  [1m[36m (252.1ms)[0m  [1mCREATE INDEX `index_work_packages_on_planning_element_type_id` ON `work_packages` (`planning_element_type_id`)[0m
+  [1m[35m (159.0ms)[0m  CREATE INDEX `index_work_packages_on_planning_element_status_id` ON `work_packages` (`planning_element_status_id`)
+  [1m[36m (158.8ms)[0m  [1mCREATE INDEX `index_work_packages_on_root_id_and_lft_and_rgt` ON `work_packages` (`root_id`, `lft`, `rgt`)[0m
+  [1m[35m (184.7ms)[0m  ALTER TABLE `projects` ADD `work_packages_responsible_id` int(11)
+  [1m[36m (158.9ms)[0m  [1mCREATE INDEX `index_projects_on_work_packages_responsible_id` ON `projects` (`work_packages_responsible_id`)[0m
+  [1m[35m (0.3ms)[0m  SHOW COLUMNS FROM `time_entries` LIKE 'issue_id'
+  [1m[36m (236.1ms)[0m  [1mALTER TABLE `time_entries` CHANGE `issue_id` `work_package_id` int(11) DEFAULT NULL[0m
+  [1m[35m (57.1ms)[0m  RENAME TABLE `issues` TO `legacy_issues`
+  [1m[36m (33.1ms)[0m  [1mRENAME TABLE `planning_elements` TO `legacy_planning_elements`[0m
+  [1m[35m (33.1ms)[0m  INSERT INTO `schema_migrations` (`version`) VALUES ('20130620082322')
+Migrating to WorkPackageCustomFieldDataMigration (20130625124242)
+  [1m[36m (0.3ms)[0m  [1m UPDATE `custom_fields`
+ SET type = 'WorkPackageCustomField'
+ WHERE type = 'IssueCustomField'
+[0m
+  [1m[35m (0.1ms)[0m   UPDATE `custom_values`
+ SET customized_type = 'WorkPackage'
+ WHERE customized_type = 'Issue'
+
+  [1m[36m (30.5ms)[0m  [1mINSERT INTO `schema_migrations` (`version`) VALUES ('20130625124242')[0m
+Migrating to AddFailedLoginCountLastFailedLoginOnToUser (20130628092725)
+  [1m[35m (197.5ms)[0m  ALTER TABLE `users` ADD `failed_login_count` int(11) DEFAULT 0
+  [1m[36m (193.0ms)[0m  [1mALTER TABLE `users` ADD `last_failed_login_on` datetime[0m
+  [1m[35m (32.4ms)[0m  INSERT INTO `schema_migrations` (`version`) VALUES ('20130628092725')
+Migrating to RenameEndDateOnAlternateDates (20130709084751)
+  [1m[36m (0.3ms)[0m  [1mSHOW COLUMNS FROM `alternate_dates` LIKE 'end_date'[0m
+  [1m[35m (191.4ms)[0m  ALTER TABLE `alternate_dates` CHANGE `end_date` `due_date` date NOT NULL
+  [1m[36m (41.0ms)[0m  [1mINSERT INTO `schema_migrations` (`version`) VALUES ('20130709084751')[0m
+Migrating to RemoveEndDateFromWorkPackages (20130710145350)
+  [1m[35m (0.2ms)[0m   UPDATE work_packages
+ SET due_date = end_date
+ WHERE due_date IS NULL;
+
+  [1m[36m (257.9ms)[0m  [1mALTER TABLE `work_packages` DROP `end_date`[0m
+  [1m[35m (32.9ms)[0m  INSERT INTO `schema_migrations` (`version`) VALUES ('20130710145350')
+Migrating to RenameChangesetWpJoinTable (20130717134318)
+  [1m[36m (212.0ms)[0m  [1mDROP INDEX `changesets_issues_ids` ON `changesets_issues`[0m
+  [1m[35m (41.3ms)[0m  RENAME TABLE `changesets_issues` TO `changesets_work_packages`
+  [1m[36m (0.4ms)[0m  [1mSHOW COLUMNS FROM `changesets_work_packages` LIKE 'issue_id'[0m
+  [1m[35m (226.7ms)[0m  ALTER TABLE `changesets_work_packages` CHANGE `issue_id` `work_package_id` int(11) NOT NULL
+  [1m[36m (184.0ms)[0m  [1mCREATE UNIQUE INDEX `changesets_work_packages_ids` ON `changesets_work_packages` (`changeset_id`, `work_package_id`)[0m
+  [1m[35m (33.2ms)[0m  INSERT INTO `schema_migrations` (`version`) VALUES ('20130717134318')
+Migrating to RenameTrackersToTypes (20130719133922)
+  [1m[36m (167.2ms)[0m  [1mDROP INDEX `index_custom_fields_trackers_on_custom_field_id_and_tracker_id` ON `custom_fields_trackers`[0m
+  [1m[35m (33.2ms)[0m  RENAME TABLE `custom_fields_trackers` TO `custom_fields_types`
+  [1m[36m (0.5ms)[0m  [1mSHOW COLUMNS FROM `custom_fields_types` LIKE 'tracker_id'[0m
+  [1m[35m (207.8ms)[0m  ALTER TABLE `custom_fields_types` CHANGE `tracker_id` `type_id` int(11) DEFAULT 0 NOT NULL
+  [1m[36m (217.2ms)[0m  [1mCREATE UNIQUE INDEX `custom_fields_types_unique` ON `custom_fields_types` (`custom_field_id`, `type_id`)[0m
+  [1m[35m (117.8ms)[0m  DROP INDEX `projects_trackers_project_id` ON `projects_trackers`
+  [1m[36m (192.7ms)[0m  [1mDROP INDEX `projects_trackers_unique` ON `projects_trackers`[0m
+  [1m[35m (49.8ms)[0m  RENAME TABLE `projects_trackers` TO `projects_types`
+  [1m[36m (0.3ms)[0m  [1mSHOW COLUMNS FROM `projects_types` LIKE 'tracker_id'[0m
+  [1m[35m (242.5ms)[0m  ALTER TABLE `projects_types` CHANGE `tracker_id` `type_id` int(11) DEFAULT 0 NOT NULL
+  [1m[36m (150.7ms)[0m  [1mCREATE INDEX `projects_types_project_id` ON `projects_types` (`project_id`)[0m
+  [1m[35m (376.8ms)[0m  CREATE UNIQUE INDEX `projects_types_unique` ON `projects_types` (`project_id`, `type_id`)
+  [1m[36m (33.0ms)[0m  [1mRENAME TABLE `trackers` TO `types`[0m
+  [1m[35m (0.5ms)[0m  SHOW COLUMNS FROM `work_packages` LIKE 'tracker_id'
+  [1m[36m (307.8ms)[0m  [1mALTER TABLE `work_packages` CHANGE `tracker_id` `type_id` int(11) DEFAULT 0 NOT NULL[0m
+  [1m[35m (150.1ms)[0m  DROP INDEX `wkfs_role_tracker_old_status` ON `workflows`
+  [1m[36m (0.4ms)[0m  [1mSHOW COLUMNS FROM `workflows` LIKE 'tracker_id'[0m
+  [1m[35m (208.3ms)[0m  ALTER TABLE `workflows` CHANGE `tracker_id` `type_id` int(11) DEFAULT 0 NOT NULL
+  [1m[36m (185.0ms)[0m  [1mCREATE INDEX `wkfs_role_type_old_status` ON `workflows` (`role_id`, `type_id`, `old_status_id`)[0m
+  [1m[35m (33.2ms)[0m  INSERT INTO `schema_migrations` (`version`) VALUES ('20130719133922')
+Migrating to RenameWorkPackageStiColumn (20130722154555)
+  [1m[36m (0.4ms)[0m  [1mSHOW COLUMNS FROM `work_packages` LIKE 'type'[0m
+  [1m[35m (272.8ms)[0m  ALTER TABLE `work_packages` CHANGE `type` `sti_type` varchar(255) DEFAULT NULL
+  [1m[36m (90.6ms)[0m  [1mINSERT INTO `schema_migrations` (`version`) VALUES ('20130722154555')[0m
+Migrating to AddActivityModule (20130723092240)
+  [1m[35mProject Load (0.2ms)[0m  SELECT `projects`.* FROM `projects` 
+  [1m[36m (0.1ms)[0m  [1mSELECT MAX(`settings`.`updated_on`) AS max_id FROM `settings` [0m
+  [1m[35mSetting Load (0.2ms)[0m  SELECT `settings`.* FROM `settings` WHERE `settings`.`name` = 'default_projects_modules' LIMIT 1
+  [1m[36mSetting Load (0.1ms)[0m  [1mSELECT `settings`.* FROM `settings` WHERE `settings`.`name` = 'default_projects_modules' LIMIT 1[0m
+  [1m[35m (0.1ms)[0m  SELECT MAX(`settings`.`updated_on`) AS max_id FROM `settings` 
+  [1m[36m (0.0ms)[0m  [1mBEGIN[0m
+  [1m[35mSetting Exists (0.3ms)[0m  SELECT 1 AS one FROM `settings` WHERE `settings`.`name` = BINARY 'default_projects_modules' LIMIT 1
+  [1m[36mSQL (0.2ms)[0m  [1mINSERT INTO `settings` (`name`, `updated_on`, `value`) VALUES ('default_projects_modules', '2013-11-11 07:12:27', '---\n- activity\n- boards\n- calendar\n- issue_tracking\n- news\n- repository\n- time_tracking\n- timelines\n- wiki\n')[0m
+  [1m[35m (50.0ms)[0m  COMMIT
+  [1m[36m (33.4ms)[0m  [1mINSERT INTO `schema_migrations` (`version`) VALUES ('20130723092240')[0m
+Migrating to IncreaseJournalsChangedDataLimit (20130723134527)
+  [1m[35m (231.8ms)[0m  ALTER TABLE `journals` CHANGE `changed_data` `changed_data` longtext DEFAULT NULL
+  [1m[36m (251.8ms)[0m  [1mALTER TABLE `journal_details` CHANGE `value` `value` longtext DEFAULT NULL[0m
+  [1m[35m (317.4ms)[0m  ALTER TABLE `journal_details` CHANGE `old_value` `old_value` longtext DEFAULT NULL
+  [1m[36m (41.1ms)[0m  [1mINSERT INTO `schema_migrations` (`version`) VALUES ('20130723134527')[0m
+Migrating to AddPlanningElementTypePropertiesToType (20130724143418)
+  [1m[35m (468.4ms)[0m  ALTER TABLE `types` ADD `in_aggregation` tinyint(1) DEFAULT 1 NOT NULL
+  [1m[36m (327.7ms)[0m  [1mALTER TABLE `types` ADD `is_milestone` tinyint(1) DEFAULT 0 NOT NULL[0m
+  [1m[35m (209.7ms)[0m  ALTER TABLE `types` ADD `is_default` tinyint(1) DEFAULT 0 NOT NULL
+  [1m[36m (226.4ms)[0m  [1mALTER TABLE `types` ADD `color_id` int(11)[0m
+  [1m[35m (209.8ms)[0m  ALTER TABLE `types` ADD `created_at` datetime
+  [1m[36m (201.3ms)[0m  [1mALTER TABLE `types` ADD `updated_at` datetime[0m
+  [1m[35mSQL (0.2ms)[0m  UPDATE `types` SET `created_at` = '2013-11-11 07:12:30', `updated_at` = '2013-11-11 07:12:30' WHERE `types`.`created_at` IS NULL AND `types`.`updated_at` IS NULL ORDER BY position ASC
+  [1m[36m (288.9ms)[0m  [1mALTER TABLE `types` CHANGE `created_at` `created_at` datetime NOT NULL[0m
+  [1m[35m (200.5ms)[0m  ALTER TABLE `types` CHANGE `updated_at` `updated_at` datetime NOT NULL
+  [1m[36m (200.6ms)[0m  [1mALTER TABLE `types` CHANGE `name` `name` varchar(255) DEFAULT '' NOT NULL[0m
+  [1m[35m (191.8ms)[0m  CREATE INDEX `index_types_on_color_id` ON `types` (`color_id`)
+  [1m[36m (42.7ms)[0m  [1mINSERT INTO `schema_migrations` (`version`) VALUES ('20130724143418')[0m
+Migrating to MovePlanningElementTypesToLegacyPlanningElementTypes (20130729114110)
+  [1m[35m (48.6ms)[0m  RENAME TABLE `default_planning_element_types` TO `legacy_default_planning_element_types`
+  [1m[36m (49.8ms)[0m  [1mRENAME TABLE `enabled_planning_element_types` TO `legacy_enabled_planning_element_types`[0m
+  [1m[35m (50.0ms)[0m  RENAME TABLE `planning_element_types` TO `legacy_planning_element_types`
+  [1m[36m (301.7ms)[0m  [1mALTER TABLE `work_packages` DROP `planning_element_type_id`[0m
+  [1m[35m (41.2ms)[0m  INSERT INTO `schema_migrations` (`version`) VALUES ('20130729114110')
+Migrating to AddStandardColumnToTypeTable (20130806075000)
+  [1m[36m (199.4ms)[0m  [1mALTER TABLE `types` ADD `is_standard` tinyint(1) DEFAULT 0 NOT NULL[0m
+  [1m[35m (41.2ms)[0m  INSERT INTO `schema_migrations` (`version`) VALUES ('20130806075000')
+Migrating to MoveJournalsToLegacyJournals (20130807081927)
+  [1m[36m (48.0ms)[0m  [1mRENAME TABLE `journals` TO `legacy_journals`[0m
+  [1m[35m (49.7ms)[0m  INSERT INTO `schema_migrations` (`version`) VALUES ('20130807081927')
+Migrating to CreateNormalizedJournals (20130807082645)
+  [1m[36m (119.6ms)[0m  [1mCREATE TABLE `journals` (`id` int(11) DEFAULT NULL auto_increment PRIMARY KEY, `journable_id` int(11), `journable_type` varchar(255), `journable_data_id` int(11), `journable_data_type` varchar(255), `user_id` int(11) DEFAULT 0 NOT NULL, `notes` text, `created_at` datetime NOT NULL, `version` int(11) DEFAULT 0 NOT NULL, `activity_type` varchar(255)) ENGINE=InnoDB[0m
+  [1m[35m (41.3ms)[0m  INSERT INTO `schema_migrations` (`version`) VALUES ('20130807082645')
+Migrating to CreateAttachmentJournals (20130807083715)
+  [1m[36m (181.4ms)[0m  [1mCREATE TABLE `attachment_journals` (`id` int(11) DEFAULT NULL auto_increment PRIMARY KEY, `journal_id` int(11) NOT NULL, `container_id` int(11) DEFAULT 0 NOT NULL, `container_type` varchar(30) DEFAULT '' NOT NULL, `filename` varchar(255) DEFAULT '' NOT NULL, `disk_filename` varchar(255) DEFAULT '' NOT NULL, `filesize` int(11) DEFAULT 0 NOT NULL, `content_type` varchar(255) DEFAULT '', `digest` varchar(40) DEFAULT '' NOT NULL, `downloads` int(11) DEFAULT 0 NOT NULL, `author_id` int(11) DEFAULT 0 NOT NULL, `created_on` datetime, `description` varchar(255)) ENGINE=InnoDB[0m
+  [1m[35m (32.6ms)[0m  INSERT INTO `schema_migrations` (`version`) VALUES ('20130807083715')
+Migrating to CreateWorkPackageJournals (20130807084417)
+  [1m[36m (105.5ms)[0m  [1mCREATE TABLE `work_package_journals` (`id` int(11) DEFAULT NULL auto_increment PRIMARY KEY, `journal_id` int(11) NOT NULL, `type_id` int(11) DEFAULT 0 NOT NULL, `project_id` int(11) DEFAULT 0 NOT NULL, `subject` varchar(255) DEFAULT '' NOT NULL, `description` text, `due_date` date, `category_id` int(11), `status_id` int(11) DEFAULT 0 NOT NULL, `assigned_to_id` int(11), `priority_id` int(11) DEFAULT 0 NOT NULL, `fixed_version_id` int(11), `author_id` int(11) DEFAULT 0 NOT NULL, `lock_version` int(11) DEFAULT 0 NOT NULL, `done_ratio` int(11) DEFAULT 0 NOT NULL, `estimated_hours` float, `created_at` datetime, `updated_at` datetime, `start_date` date, `planning_element_status_comment` text, `deleted_at` datetime, `parent_id` int(11), `responsible_id` int(11), `planning_element_status_id` int(11), `sti_type` varchar(255), `root_id` int(11), `lft` int(11), `rgt` int(11)) ENGINE=InnoDB[0m
+  [1m[35m (32.9ms)[0m  INSERT INTO `schema_migrations` (`version`) VALUES ('20130807084417')
+Migrating to CreateMessageJournals (20130807084708)
+  [1m[36m (114.8ms)[0m  [1mCREATE TABLE `message_journals` (`id` int(11) DEFAULT NULL auto_increment PRIMARY KEY, `journal_id` int(11) NOT NULL, `board_id` int(11) NOT NULL, `parent_id` int(11), `subject` varchar(255) DEFAULT '' NOT NULL, `content` text, `author_id` int(11), `replies_count` int(11) DEFAULT 0 NOT NULL, `last_reply_id` int(11), `created_on` datetime NOT NULL, `updated_on` datetime NOT NULL, `locked` tinyint(1) DEFAULT 0, `sticky` int(11) DEFAULT 0) ENGINE=InnoDB[0m
+  [1m[35m (41.4ms)[0m  INSERT INTO `schema_migrations` (`version`) VALUES ('20130807084708')
+Migrating to CreateNewsJournals (20130807085108)
+  [1m[36m (121.4ms)[0m  [1mCREATE TABLE `news_journals` (`id` int(11) DEFAULT NULL auto_increment PRIMARY KEY, `journal_id` int(11) NOT NULL, `project_id` int(11), `title` varchar(60) DEFAULT '' NOT NULL, `summary` varchar(255) DEFAULT '', `description` text, `author_id` int(11) DEFAULT 0 NOT NULL, `created_on` datetime, `comments_count` int(11) DEFAULT 0 NOT NULL) ENGINE=InnoDB[0m
+  [1m[35m (41.2ms)[0m  INSERT INTO `schema_migrations` (`version`) VALUES ('20130807085108')
+Migrating to CreateWikiContentJournals (20130807085245)
+  [1m[36m (114.9ms)[0m  [1mCREATE TABLE `wiki_content_journals` (`id` int(11) DEFAULT NULL auto_increment PRIMARY KEY, `journal_id` int(11) NOT NULL, `page_id` int(11) NOT NULL, `author_id` int(11), `text` longtext, `updated_on` datetime NOT NULL, `lock_version` int(11) NOT NULL) ENGINE=InnoDB[0m
+  [1m[35m (49.6ms)[0m  INSERT INTO `schema_migrations` (`version`) VALUES ('20130807085245')
+Migrating to CreateTimeEntryJournals (20130807085430)
+  [1m[36m (112.2ms)[0m  [1mCREATE TABLE `time_entry_journals` (`id` int(11) DEFAULT NULL auto_increment PRIMARY KEY, `journal_id` int(11) NOT NULL, `project_id` int(11) NOT NULL, `user_id` int(11) NOT NULL, `work_package_id` int(11), `hours` float NOT NULL, `comments` varchar(255), `activity_id` int(11) NOT NULL, `spent_on` date NOT NULL, `tyear` int(11) NOT NULL, `tmonth` int(11) NOT NULL, `tweek` int(11) NOT NULL, `created_on` datetime NOT NULL, `updated_on` datetime NOT NULL) ENGINE=InnoDB[0m
+  [1m[35m (32.9ms)[0m  INSERT INTO `schema_migrations` (`version`) VALUES ('20130807085430')
+Migrating to CreateChangesetJournals (20130807085714)
+  [1m[36m (113.2ms)[0m  [1mCREATE TABLE `changeset_journals` (`id` int(11) DEFAULT NULL auto_increment PRIMARY KEY, `journal_id` int(11) NOT NULL, `repository_id` int(11) NOT NULL, `revision` varchar(255) NOT NULL, `committer` varchar(255), `committed_on` datetime NOT NULL, `comments` text, `commit_date` date, `scmid` varchar(255), `user_id` int(11)) ENGINE=InnoDB[0m
+  [1m[35m (41.3ms)[0m  INSERT INTO `schema_migrations` (`version`) VALUES ('20130807085714')
+Migrating to RemoveFilesAttachedToProjectsAndVersions (20130807141542)
+  [1m[36m (0.2ms)[0m  [1mSELECT COUNT(*) FROM `attachments` WHERE `attachments`.`container_type` IN ('Version', 'Project')[0m
+  [1m[35m (53.2ms)[0m  INSERT INTO `schema_migrations` (`version`) VALUES ('20130807141542')
+Migrating to AddAttachableJournal (20130813062401)
+  [1m[36m (98.5ms)[0m  [1mCREATE TABLE `attachable_journals` (`id` int(11) DEFAULT NULL auto_increment PRIMARY KEY, `journal_id` int(11) NOT NULL, `attachment_id` int(11) NOT NULL, `filename` varchar(255) DEFAULT '' NOT NULL) ENGINE=InnoDB[0m
+  [1m[35m (183.8ms)[0m  CREATE INDEX `index_attachable_journals_on_journal_id` ON `attachable_journals` (`journal_id`)
+  [1m[36m (183.6ms)[0m  [1mCREATE INDEX `index_attachable_journals_on_attachment_id` ON `attachable_journals` (`attachment_id`)[0m
+  [1m[35m (41.2ms)[0m  INSERT INTO `schema_migrations` (`version`) VALUES ('20130813062401')
+Migrating to AddCustomizableJournal (20130813062513)
+  [1m[36m (98.2ms)[0m  [1mCREATE TABLE `customizable_journals` (`id` int(11) DEFAULT NULL auto_increment PRIMARY KEY, `journal_id` int(11) NOT NULL, `custom_field_id` int(11) NOT NULL, `value` varchar(255), `default_value` varchar(255)) ENGINE=InnoDB[0m
+  [1m[35m (239.7ms)[0m  CREATE INDEX `index_customizable_journals_on_journal_id` ON `customizable_journals` (`journal_id`)
+  [1m[36m (196.7ms)[0m  [1mCREATE INDEX `index_customizable_journals_on_custom_field_id` ON `customizable_journals` (`custom_field_id`)[0m
+  [1m[35m (33.2ms)[0m  INSERT INTO `schema_migrations` (`version`) VALUES ('20130813062513')
+Migrating to RemoveDocuments (20130814130142)
+  [1m[36m (0.1ms)[0m  [1mSELECT COUNT(*) FROM `documents` [0m
+  [1m[35m (0.2ms)[0m  SELECT COUNT(*) FROM `attachments` WHERE `attachments`.`container_type` IN ('Document')
+  [1m[36m (58.4ms)[0m  [1mDROP TABLE `documents`[0m
+  [1m[35mDocumentCategory Load (0.2ms)[0m  SELECT `enumerations`.* FROM `enumerations` WHERE `enumerations`.`type` IN ('DocumentCategory') ORDER BY enumerations.position ASC
+  [1m[36mAttachment Load (0.2ms)[0m  [1mSELECT `attachments`.* FROM `attachments` WHERE `attachments`.`container_type` IN ('Document')[0m
+  [1m[35m (55.3ms)[0m  INSERT INTO `schema_migrations` (`version`) VALUES ('20130814130142')
+Migrating to RemoveAlternateDatesAndScenarios (20130828093647)
+  [1m[36m (48.5ms)[0m  [1mDROP TABLE `alternate_dates`[0m
+  [1m[35m (50.2ms)[0m  DROP TABLE `scenarios`
+  [1m[36m (41.5ms)[0m  [1mINSERT INTO `schema_migrations` (`version`) VALUES ('20130828093647')[0m
+Migrating to DropModelJournalsUpdatedOnColumn (20130829084747)
+  [1m[35m (216.6ms)[0m  ALTER TABLE `work_package_journals` DROP `updated_at`
+  [1m[36m (286.1ms)[0m  [1mALTER TABLE `wiki_content_journals` DROP `updated_on`[0m
+  [1m[35m (192.9ms)[0m  ALTER TABLE `time_entry_journals` DROP `updated_on`
+  [1m[36m (218.0ms)[0m  [1mALTER TABLE `message_journals` DROP `updated_on`[0m
+  [1m[35m (32.9ms)[0m  INSERT INTO `schema_migrations` (`version`) VALUES ('20130829084747')
+Migrating to LegacyIssuesToWorkPackages (20130916094339)
+  [1m[36m (0.6ms)[0m  [1m SELECT *
+ FROM work_packages
+[0m
+  [1m[35m (0.3ms)[0m   INSERT INTO work_packages
+ (
+ id,
+ type_id,
+ project_id,
+ subject,
+ description,
+ due_date,
+ category_id,
+ status_id,
+ assigned_to_id,
+ priority_id,
+ fixed_version_id,
+ author_id,
+ lock_version,
+ done_ratio,
+ estimated_hours,
+ created_at,
+ updated_at,
+ start_date,
+ planning_element_status_comment,
+ deleted_at,
+ parent_id,
+ responsible_id,
+ planning_element_status_id,
+ sti_type,
+ root_id,
+ lft,
+ rgt
+ )
+ SELECT
+ id,
+ tracker_id,
+ project_id,
+ subject,
+ description,
+ due_date,
+ category_id,
+ status_id,
+ assigned_to_id,
+ priority_id,
+ fixed_version_id,
+ author_id,
+ lock_version,
+ done_ratio,
+ estimated_hours,
+ created_on,
+ updated_on,
+ start_date,
+ '',
+ NULL,
+ parent_id,
+ NULL,
+ NULL,
+ NULL,
+ root_id,
+ lft,
+ rgt
+ FROM legacy_issues
+
+  [1m[36m (57.0ms)[0m  [1mINSERT INTO `schema_migrations` (`version`) VALUES ('20130916094339')[0m
+Migrating to PlanningElementTypesDataToTypes (20130916123916)
+  [1m[35m (490.9ms)[0m  ALTER TABLE `legacy_planning_element_types` ADD `new_id` int(11)
+  [1m[36m (0.3ms)[0m  [1m SELECT MAX(position) as max
+ FROM `types`
+[0m
+  [1m[35m (0.2ms)[0m   SELECT id
+ FROM `issue_statuses`
+
+  [1m[36m (0.3ms)[0m  [1m SELECT id
+ FROM `roles`
+ WHERE builtin = 0
+[0m
+  [1m[35m (0.3ms)[0m   SELECT new_id
+ FROM `legacy_planning_element_types`
+
+  [1m[36m (0.2ms)[0m  [1m INSERT INTO `projects_types`
+ (
+ project_id,
+ type_id
+ )
+ SELECT project_id, new_id
+ FROM `legacy_enabled_planning_element_types` AS epet
+ LEFT JOIN `legacy_planning_element_types` AS pet
+ ON epet.planning_element_type_id = pet.id
+[0m
+  [1m[35m (125.1ms)[0m  INSERT INTO `schema_migrations` (`version`) VALUES ('20130916123916')
+Migrating to MigrateQueryTrackerReferencesToType (20130917101922)
+  [1m[36m (0.4ms)[0m  [1m SELECT id, filters, column_names, sort_criteria, group_by
+ FROM queries
+ WHERE filters LIKE '%tracker%' OR column_names LIKE '%tracker%' OR sort_criteria LIKE '%tracker%' OR group_by LIKE '%tracker%'
+[0m
+  [1m[35m (47.5ms)[0m  INSERT INTO `schema_migrations` (`version`) VALUES ('20130917101922')
+Migrating to RemoveIsInChlogFromTypes (20130917122118)
+  [1m[36m (221.3ms)[0m  [1mALTER TABLE `types` DROP `is_in_chlog`[0m
+  [1m[35m (41.0ms)[0m  INSERT INTO `schema_migrations` (`version`) VALUES ('20130917122118')
+Migrating to PlanningElementDataToWorkPackages (20130917131710)
+  [1m[36m (258.4ms)[0m  [1mALTER TABLE `legacy_planning_elements` ADD `new_id` int(11)[0m
+  [1m[35m (0.4ms)[0m   SELECT `id`
+ FROM `legacy_planning_elements`
+ LIMIT 1
+
+  [1m[36m (106.6ms)[0m  [1mINSERT INTO `schema_migrations` (`version`) VALUES ('20130917131710')[0m
+Migrating to MigrateUserRights (20130918111753)
+  [1m[35m (0.3ms)[0m   SELECT id, permissions
+ FROM roles
+ WHERE permissions LIKE '%issue%' OR permissions LIKE '%planning_element%'
+
+  [1m[36m (60.6ms)[0m  [1mINSERT INTO `schema_migrations` (`version`) VALUES ('20130918111753')[0m
+Migrating to MigrateSettingsToWorkPackage (20130919105841)
+  [1m[35m (0.3ms)[0m   SELECT id, name
+ FROM settings
+ WHERE name LIKE '%issue%'
+
+  [1m[36m (55.0ms)[0m  [1mINSERT INTO `schema_migrations` (`version`) VALUES ('20130919105841')[0m
+Migrating to RenameIssueRelationsToRelations (20130919145142)
+  [1m[35m (48.0ms)[0m  RENAME TABLE `issue_relations` TO `relations`
+  [1m[36m (0.3ms)[0m  [1mSHOW COLUMNS FROM `relations` LIKE 'issue_from_id'[0m
+  [1m[35m (242.9ms)[0m  ALTER TABLE `relations` CHANGE `issue_from_id` `from_id` int(11) NOT NULL
+  [1m[36m (0.4ms)[0m  [1mSHOW COLUMNS FROM `relations` LIKE 'issue_to_id'[0m
+  [1m[35m (266.3ms)[0m  ALTER TABLE `relations` CHANGE `issue_to_id` `to_id` int(11) NOT NULL
+  [1m[36m (41.2ms)[0m  [1mINSERT INTO `schema_migrations` (`version`) VALUES ('20130919145142')[0m
+Migrating to JournalIndices (20130920081120)
+  [1m[35m (251.9ms)[0m  DROP INDEX `index_journals_on_activity_type` ON `legacy_journals`
+  [1m[36m (141.3ms)[0m  [1mDROP INDEX `index_journals_on_created_at` ON `legacy_journals`[0m
+  [1m[35m (158.4ms)[0m  DROP INDEX `index_journals_on_created_on` ON `legacy_journals`
+  [1m[36m (141.8ms)[0m  [1mDROP INDEX `index_journals_on_journaled_id` ON `legacy_journals`[0m
+  [1m[35m (151.5ms)[0m  DROP INDEX `index_journals_on_journalized_id` ON `legacy_journals`
+  [1m[36m (133.5ms)[0m  [1mDROP INDEX `index_journals_on_type` ON `legacy_journals`[0m
+  [1m[35m (150.2ms)[0m  DROP INDEX `index_journals_on_user_id` ON `legacy_journals`
+  [1m[36m (559.4ms)[0m  [1mCREATE INDEX `idx_lgcy_journals_on_activity_type` ON `legacy_journals` (`activity_type`)[0m
+  [1m[35m (367.4ms)[0m  CREATE INDEX `idx_lgcy_journals_on_created_at` ON `legacy_journals` (`created_at`)
+  [1m[36m (184.0ms)[0m  [1mCREATE INDEX `idx_lgcy_journals_on_journaled_id` ON `legacy_journals` (`journaled_id`)[0m
+  [1m[35m (176.4ms)[0m  CREATE INDEX `idx_lgcy_journals_on_type` ON `legacy_journals` (`type`)
+  [1m[36m (158.5ms)[0m  [1mCREATE INDEX `idx_lgcy_journals_on_user_id` ON `legacy_journals` (`user_id`)[0m
+  [1m[35m (158.9ms)[0m  CREATE INDEX `index_journals_on_journable_id` ON `journals` (`journable_id`)
+  [1m[36m (167.1ms)[0m  [1mCREATE INDEX `index_journals_on_created_at` ON `journals` (`created_at`)[0m
+  [1m[35m (158.8ms)[0m  CREATE INDEX `index_journals_on_journable_type` ON `journals` (`journable_type`)
+  [1m[36m (168.3ms)[0m  [1mCREATE INDEX `index_journals_on_user_id` ON `journals` (`user_id`)[0m
+  [1m[35m (175.6ms)[0m  CREATE INDEX `index_journals_on_activity_type` ON `journals` (`activity_type`)
+  [1m[36m (41.4ms)[0m  [1mINSERT INTO `schema_migrations` (`version`) VALUES ('20130920081120')[0m
+Migrating to LegacyAttachmentJournalData (20130920081135)
+  [1m[35m (0.6ms)[0m   SELECT DISTINCT tmp.id
+ FROM (
+ SELECT
+ a.id AS id,
+ a.journaled_id,
+ a.type,
+ a.version AS version,
+ count(b.id) AS count
+ FROM
+ `legacy_journals` AS a
+ LEFT JOIN
+ `legacy_journals` AS b
+ ON a.version >= b.version
+ AND a.journaled_id = b.journaled_id
+ AND a.type = b.type
+ WHERE a.version > 1
+ AND (a.type = 'AttachmentJournal')
+ GROUP BY
+ a.id,
+ a.journaled_id,
+ a.type,
+ a.version
+ ) AS tmp
+ WHERE
+ NOT (tmp.version = tmp.count);
+
+  [1m[36m (0.2ms)[0m  [1m SELECT *
+ FROM `legacy_journals` AS j
+ WHERE (j.type = 'AttachmentJournal')
+ ORDER BY j.journaled_id, j.type, j.version;
+[0m
+  [1m[35m (40.9ms)[0m  INSERT INTO `schema_migrations` (`version`) VALUES ('20130920081135')
+Migrating to LegacyChangesetJournalData (20130920085055)
+  [1m[36m (0.8ms)[0m  [1m SELECT DISTINCT tmp.id
+ FROM (
+ SELECT
+ a.id AS id,
+ a.journaled_id,
+ a.type,
+ a.version AS version,
+ count(b.id) AS count
+ FROM
+ `legacy_journals` AS a
+ LEFT JOIN
+ `legacy_journals` AS b
+ ON a.version >= b.version
+ AND a.journaled_id = b.journaled_id
+ AND a.type = b.type
+ WHERE a.version > 1
+ AND (a.type = 'ChangesetJournal')
+ GROUP BY
+ a.id,
+ a.journaled_id,
+ a.type,
+ a.version
+ ) AS tmp
+ WHERE
+ NOT (tmp.version = tmp.count);
+[0m
+  [1m[35m (0.3ms)[0m   SELECT *
+ FROM `legacy_journals` AS j
+ WHERE (j.type = 'ChangesetJournal')
+ ORDER BY j.journaled_id, j.type, j.version;
+
+  [1m[36m (36.9ms)[0m  [1mINSERT INTO `schema_migrations` (`version`) VALUES ('20130920085055')[0m
+Migrating to LegacyNewsJournalData (20130920090201)
+  [1m[35m (0.5ms)[0m   SELECT DISTINCT tmp.id
+ FROM (
+ SELECT
+ a.id AS id,
+ a.journaled_id,
+ a.type,
+ a.version AS version,
+ count(b.id) AS count
+ FROM
+ `legacy_journals` AS a
+ LEFT JOIN
+ `legacy_journals` AS b
+ ON a.version >= b.version
+ AND a.journaled_id = b.journaled_id
+ AND a.type = b.type
+ WHERE a.version > 1
+ AND (a.type = 'NewsJournal')
+ GROUP BY
+ a.id,
+ a.journaled_id,
+ a.type,
+ a.version
+ ) AS tmp
+ WHERE
+ NOT (tmp.version = tmp.count);
+
+  [1m[36m (0.2ms)[0m  [1m SELECT *
+ FROM `legacy_journals` AS j
+ WHERE (j.type = 'NewsJournal')
+ ORDER BY j.journaled_id, j.type, j.version;
+[0m
+  [1m[35m (46.4ms)[0m  INSERT INTO `schema_migrations` (`version`) VALUES ('20130920090201')
+Migrating to LegacyMessageJournalData (20130920090641)
+  [1m[36m (0.5ms)[0m  [1m SELECT DISTINCT tmp.id
+ FROM (
+ SELECT
+ a.id AS id,
+ a.journaled_id,
+ a.type,
+ a.version AS version,
+ count(b.id) AS count
+ FROM
+ `legacy_journals` AS a
+ LEFT JOIN
+ `legacy_journals` AS b
+ ON a.version >= b.version
+ AND a.journaled_id = b.journaled_id
+ AND a.type = b.type
+ WHERE a.version > 1
+ AND (a.type = 'MessageJournal')
+ GROUP BY
+ a.id,
+ a.journaled_id,
+ a.type,
+ a.version
+ ) AS tmp
+ WHERE
+ NOT (tmp.version = tmp.count);
+[0m
+  [1m[35m (0.3ms)[0m   SELECT *
+ FROM `legacy_journals` AS j
+ WHERE (j.type = 'MessageJournal')
+ ORDER BY j.journaled_id, j.type, j.version;
+
+  [1m[36m (37.2ms)[0m  [1mINSERT INTO `schema_migrations` (`version`) VALUES ('20130920090641')[0m
+Migrating to LegacyTimeEntryJournalData (20130920092800)
+  [1m[35m (0.6ms)[0m   SELECT DISTINCT tmp.id
+ FROM (
+ SELECT
+ a.id AS id,
+ a.journaled_id,
+ a.type,
+ a.version AS version,
+ count(b.id) AS count
+ FROM
+ `legacy_journals` AS a
+ LEFT JOIN
+ `legacy_journals` AS b
+ ON a.version >= b.version
+ AND a.journaled_id = b.journaled_id
+ AND a.type = b.type
+ WHERE a.version > 1
+ AND (a.type = 'TimeEntryJournal')
+ GROUP BY
+ a.id,
+ a.journaled_id,
+ a.type,
+ a.version
+ ) AS tmp
+ WHERE
+ NOT (tmp.version = tmp.count);
+
+  [1m[36m (0.2ms)[0m  [1m SELECT *
+ FROM `legacy_journals` AS j
+ WHERE (j.type = 'TimeEntryJournal')
+ ORDER BY j.journaled_id, j.type, j.version;
+[0m
+  [1m[35m (32.8ms)[0m  INSERT INTO `schema_migrations` (`version`) VALUES ('20130920092800')
+Migrating to LegacyWikiContentJournalData (20130920093823)
+  [1m[36m (0.6ms)[0m  [1m SELECT DISTINCT tmp.id
+ FROM (
+ SELECT
+ a.id AS id,
+ a.journaled_id,
+ a.type,
+ a.version AS version,
+ count(b.id) AS count
+ FROM
+ `legacy_journals` AS a
+ LEFT JOIN
+ `legacy_journals` AS b
+ ON a.version >= b.version
+ AND a.journaled_id = b.journaled_id
+ AND a.type = b.type
+ WHERE a.version > 1
+ AND (a.type = 'WikiContentJournal')
+ GROUP BY
+ a.id,
+ a.journaled_id,
+ a.type,
+ a.version
+ ) AS tmp
+ WHERE
+ NOT (tmp.version = tmp.count);
+[0m
+  [1m[35m (0.2ms)[0m   SELECT *
+ FROM `legacy_journals` AS j
+ WHERE (j.type = 'WikiContentJournal')
+ ORDER BY j.journaled_id, j.type, j.version;
+
+  [1m[36m (43.4ms)[0m  [1mINSERT INTO `schema_migrations` (`version`) VALUES ('20130920093823')[0m
+Migrating to LegacyIssueJournalData (20130920094524)
+  [1m[35m (0.6ms)[0m   SELECT DISTINCT tmp.id
+ FROM (
+ SELECT
+ a.id AS id,
+ a.journaled_id,
+ a.type,
+ a.version AS version,
+ count(b.id) AS count
+ FROM
+ `legacy_journals` AS a
+ LEFT JOIN
+ `legacy_journals` AS b
+ ON a.version >= b.version
+ AND a.journaled_id = b.journaled_id
+ AND a.type = b.type
+ WHERE a.version > 1
+ AND (a.type = 'IssueJournal')
+ GROUP BY
+ a.id,
+ a.journaled_id,
+ a.type,
+ a.version
+ ) AS tmp
+ WHERE
+ NOT (tmp.version = tmp.count);
+
+  [1m[36m (0.2ms)[0m  [1m SELECT *
+ FROM `legacy_journals` AS j
+ WHERE (j.type = 'IssueJournal')
+ ORDER BY j.journaled_id, j.type, j.version;
+[0m
+  [1m[35m (45.1ms)[0m  INSERT INTO `schema_migrations` (`version`) VALUES ('20130920094524')
+Migrating to LegacyPlanningElementJournalData (20130920095747)
+  [1m[36m (0.6ms)[0m  [1m SELECT DISTINCT tmp.id
+ FROM (
+ SELECT
+ a.id AS id,
+ a.journaled_id,
+ a.type,
+ a.version AS version,
+ count(b.id) AS count
+ FROM
+ `legacy_journals` AS a
+ LEFT JOIN
+ `legacy_journals` AS b
+ ON a.version >= b.version
+ AND a.journaled_id = b.journaled_id
+ AND a.type = b.type
+ WHERE a.version > 1
+ AND (a.type = 'Timelines_PlanningElementJournal')
+ GROUP BY
+ a.id,
+ a.journaled_id,
+ a.type,
+ a.version
+ ) AS tmp
+ WHERE
+ NOT (tmp.version = tmp.count);
+[0m
+  [1m[35m (0.2ms)[0m   SELECT *
+ FROM `legacy_journals` AS j
+ WHERE (j.type = 'Timelines_PlanningElementJournal')
+ ORDER BY j.journaled_id, j.type, j.version;
+
+  [1m[36m (40.8ms)[0m  [1mINSERT INTO `schema_migrations` (`version`) VALUES ('20130920095747')[0m
+Migrating to UpdateAttachmentContainer (20130920142714)
+  [1m[35m (0.3ms)[0m   UPDATE `attachments`
+ SET container_type = 'WorkPackage'
+ WHERE container_type = 'Issue'
+
+  [1m[36m (43.6ms)[0m  [1mINSERT INTO `schema_migrations` (`version`) VALUES ('20130920142714')[0m
+Migrating to JournalActivitiesData (20130920150143)
+  [1m[35m (0.3ms)[0m   UPDATE `journals`
+ SET activity_type = 'work_packages'
+ WHERE journable_type = 'WorkPackage'
+
+  [1m[36m (49.3ms)[0m  [1mINSERT INTO `schema_migrations` (`version`) VALUES ('20130920150143')[0m
+Migrating to RenameIssueCategoryToCategory (20131001075217)
+  [1m[35m (31.8ms)[0m  RENAME TABLE `issue_categories` TO `categories`
+  [1m[36m (33.0ms)[0m  [1mINSERT INTO `schema_migrations` (`version`) VALUES ('20131001075217')[0m
+Migrating to RenameIssueStatusesToStatuses (20131001105659)
+  [1m[35m (31.7ms)[0m  RENAME TABLE `issue_statuses` TO `statuses`
+  [1m[36m (32.9ms)[0m  [1mINSERT INTO `schema_migrations` (`version`) VALUES ('20131001105659')[0m
+Migrating to MigrateTextReferencesToIssuesAndPlanningElements (20131007062401)
+  [1m[35m (0.3ms)[0m   SELECT id, new_id, project_id
+ FROM legacy_planning_elements
+
+  [1m[36m (0.3ms)[0m  [1m SELECT id, description
+ FROM boards
+ WHERE (description LIKE '%issue%' OR description LIKE '%planning_element%' OR description LIKE '%*%')
+[0m
+  [1m[35m (0.1ms)[0m   SELECT id, new_id, project_id
+ FROM legacy_planning_elements
+
+  [1m[36m (0.2ms)[0m  [1m SELECT id, content
+ FROM messages
+ WHERE (content LIKE '%issue%' OR content LIKE '%planning_element%' OR content LIKE '%*%')
+[0m
+  [1m[35m (0.0ms)[0m   SELECT id, new_id, project_id
+ FROM legacy_planning_elements
+
+  [1m[36m (0.1ms)[0m  [1m SELECT id, summary, description
+ FROM news
+ WHERE (summary LIKE '%issue%' OR summary LIKE '%planning_element%' OR summary LIKE '%*%') OR (description LIKE '%issue%' OR description LIKE '%planning_element%' OR description LIKE '%*%')
+[0m
+  [1m[35m (0.1ms)[0m   SELECT id, new_id, project_id
+ FROM legacy_planning_elements
+
+  [1m[36m (0.2ms)[0m  [1m SELECT id, description
+ FROM projects
+ WHERE (description LIKE '%issue%' OR description LIKE '%planning_element%' OR description LIKE '%*%')
+[0m
+  [1m[35m (0.1ms)[0m   SELECT id, new_id, project_id
+ FROM legacy_planning_elements
+
+  [1m[36m (0.2ms)[0m  [1m SELECT id, text
+ FROM wiki_contents
+ WHERE (text LIKE '%issue%' OR text LIKE '%planning_element%' OR text LIKE '%*%')
+[0m
+  [1m[35m (0.5ms)[0m   INSERT INTO wiki_content_journals (journal_id, page_id, author_id, text, lock_version)
+ SELECT j.id AS journal_id, w.page_id, w.author_id, w.text, w.lock_version
+ FROM journals AS j JOIN wiki_contents AS w ON (j.journable_id = w.id)
+ WHERE journable_type = 'WikiContent'
+ AND j.id NOT IN (SELECT journal_id FROM work_package_journals)
+
+  [1m[36m (0.1ms)[0m  [1m SELECT id, new_id, project_id
+ FROM legacy_planning_elements
+[0m
+  [1m[35m (0.2ms)[0m   SELECT id, description
+ FROM work_packages
+ WHERE (description LIKE '%issue%' OR description LIKE '%planning_element%' OR description LIKE '%*%')
+
+  [1m[36m (0.8ms)[0m  [1m INSERT INTO work_package_journals (journal_id, type_id, project_id, subject, description, due_date, category_id, status_id, assigned_to_id, priority_id, fixed_version_id, author_id, lock_version, done_ratio, estimated_hours, created_at, start_date, planning_element_status_comment, deleted_at, parent_id, responsible_id, planning_element_status_id, sti_type, root_id, lft, rgt)
+ SELECT j.id AS journal_id, w.type_id, w.project_id, w.subject, w.description, w.due_date, w.category_id, w.status_id, w.assigned_to_id, w.priority_id, w.fixed_version_id, w.author_id, w.lock_version, w.done_ratio, w.estimated_hours, w.created_at, w.start_date, w.planning_element_status_comment, w.deleted_at, w.parent_id, w.responsible_id, w.planning_element_status_id, w.sti_type, w.root_id, w.lft, w.rgt
+ FROM journals AS j JOIN work_packages AS w ON (j.journable_id = w.id)
+ WHERE journable_type = 'WorkPackage'
+ AND j.id NOT IN (SELECT journal_id FROM work_package_journals)
+[0m
+  [1m[35m (36.3ms)[0m  INSERT INTO `schema_migrations` (`version`) VALUES ('20131007062401')
+Migrating to WorkPackageIndices (20131009083648)
+  [1m[36m (185.3ms)[0m  [1mALTER TABLE `work_packages` DROP `planning_element_status_comment`[0m
+  [1m[35m (226.2ms)[0m  ALTER TABLE `work_packages` DROP `planning_element_status_id`
+  [1m[36m (247.3ms)[0m  [1mALTER TABLE `work_packages` DROP `sti_type`[0m
+  [1m[35m (198.8ms)[0m  ALTER TABLE `work_package_journals` DROP `planning_element_status_comment`
+  [1m[36m (168.0ms)[0m  [1mALTER TABLE `work_package_journals` DROP `planning_element_status_id`[0m
+  [1m[35m (193.2ms)[0m  ALTER TABLE `work_package_journals` DROP `sti_type`
+  [1m[36m (175.4ms)[0m  [1mCREATE INDEX `index_work_packages_on_type_id` ON `work_packages` (`type_id`)[0m
+  [1m[35m (159.8ms)[0m  CREATE INDEX `index_work_packages_on_status_id` ON `work_packages` (`status_id`)
+  [1m[36m (217.2ms)[0m  [1mCREATE INDEX `index_work_packages_on_category_id` ON `work_packages` (`category_id`)[0m
+  [1m[35m (158.3ms)[0m  CREATE INDEX `index_work_packages_on_author_id` ON `work_packages` (`author_id`)
+  [1m[36m (166.8ms)[0m  [1mCREATE INDEX `index_work_packages_on_assigned_to_id` ON `work_packages` (`assigned_to_id`)[0m
+  [1m[35m (166.9ms)[0m  CREATE INDEX `index_work_packages_on_created_at` ON `work_packages` (`created_at`)
+  [1m[36m (184.5ms)[0m  [1mCREATE INDEX `index_work_packages_on_fixed_version_id` ON `work_packages` (`fixed_version_id`)[0m
+  [1m[35m (32.9ms)[0m  INSERT INTO `schema_migrations` (`version`) VALUES ('20131009083648')
+Migrating to MigrateTimelinesEndDatePropertyInOptions (20131015064141)
+  [1m[36m (0.4ms)[0m  [1m SELECT id, options
+ FROM timelines
+ WHERE (options LIKE '%end_date%')
+[0m
+  [1m[35m (34.5ms)[0m  INSERT INTO `schema_migrations` (`version`) VALUES ('20131015064141')
+Migrating to IndexOnUsers (20131015121430)
+  [1m[36m (174.0ms)[0m  [1mCREATE INDEX `index_users_on_type_and_login` ON `users` (`type`(255), `login`(255))[0m
+  [1m[35m (166.7ms)[0m  CREATE INDEX `index_users_on_type_and_status` ON `users` (`type`, `status`)
+  [1m[36m (33.2ms)[0m  [1mINSERT INTO `schema_migrations` (`version`) VALUES ('20131015121430')[0m
+Migrating to AddQueueToDelayedJobs (20131016075650)
+  [1m[35m (191.5ms)[0m  ALTER TABLE `delayed_jobs` ADD `queue` varchar(255)
+  [1m[36m (32.9ms)[0m  [1mINSERT INTO `schema_migrations` (`version`) VALUES ('20131016075650')[0m
+Migrating to RepairWorkPackagesInitialAttachableJournal (20131017064039)
+  [1m[35m (0.4ms)[0m   SELECT id, changed_data, version, journaled_id
+ FROM legacy_journals
+ WHERE type = 'IssueJournal' AND changed_data LIKE '%attachments%'
+
+  [1m[36m (39.1ms)[0m  [1mINSERT INTO `schema_migrations` (`version`) VALUES ('20131017064039')[0m
+Migrating to RepairMessagesInitialAttachableJournal (20131018134525)
+  [1m[35m (0.4ms)[0m   SELECT a.id, a.container_id, a.filename, last_version
+ FROM attachments AS a
+ JOIN (SELECT journable_id, MAX(version) AS last_version FROM journals
+ WHERE journable_type = 'Message'
+ GROUP BY journable_id) AS j ON (a.container_id = j.journable_id)
+ WHERE container_type = 'Message'
+
+  [1m[36m (50.2ms)[0m  [1mINSERT INTO `schema_migrations` (`version`) VALUES ('20131018134525')[0m
+Migrating to AddMissingAttachableJournals (20131018134545)
+  [1m[35m (0.6ms)[0m   SELECT * FROM (
+ SELECT a.container_id AS journaled_id, a.container_type AS journaled_type, a.id AS attachment_id, a.filename, MAX(aj.id) AS aj_id, MAX(j.version) AS last_version
+ FROM attachments AS a JOIN journals AS j
+ ON (a.container_id = j.journable_id AND a.container_type = j.journable_type) LEFT JOIN attachable_journals AS aj
+ ON (a.id = aj.attachment_id)
+ GROUP BY a.container_id, a.container_type, a.id, a.filename
+ ) AS tmp
+ WHERE aj_id IS NULL
+
+  [1m[36m (46.8ms)[0m  [1mINSERT INTO `schema_migrations` (`version`) VALUES ('20131018134545')[0m
+Migrating to AddMissingCustomizableJournals (20131018134590)
+  [1m[35m (0.9ms)[0m   SELECT * FROM
+ (
+ SELECT customized_id,
+ customized_type,
+ custom_value_journal.custom_field_id,
+ custom_value_journal.value,
+ last_version,
+ MAX(cj.id) AS cj_id FROM
+ -- get all existing custom values and all journal entries for the customized thing
+ (
+ SELECT c.customized_id,
+ c.customized_type,
+ c.custom_field_id,
+ c.value AS value,
+ j.id AS journal_id,
+ MAX(j.version) AS last_version
+ FROM custom_values AS c JOIN journals AS j
+ ON c.customized_id = j.journable_id
+ WHERE c.value <> ''
+ GROUP BY c.customized_id, c.customized_type, c.custom_field_id, c.value, j.id, c.custom_field_id
+ ) AS custom_value_journal
+ -- join it with the customizable_journals and select the custom values that have no entry in that table
+ LEFT JOIN customizable_journals AS cj
+ ON custom_value_journal.journal_id = cj.journal_id
+ GROUP BY customized_id,
+ customized_type,
+ custom_value_journal.custom_field_id,
+ custom_value_journal.value,
+ last_version
+ ) AS custom_value_customizable_journal
+ WHERE cj_id IS NULL;
+
+  [1m[36m (50.9ms)[0m  [1mINSERT INTO `schema_migrations` (`version`) VALUES ('20131018134590')[0m
+Migrating to MigrateRemainingCoreSettings (20131024115743)
+  [1m[35m (0.2ms)[0m   DELETE FROM `settings`
+ WHERE name = 'plugin_redmine_favicon'
+ OR name = 'plugin_chiliproject_help_link'
+
+  [1m[36m (0.2ms)[0m  [1mSELECT MAX(`settings`.`updated_on`) AS max_id FROM `settings` [0m
+  [1m[35mSetting Load (0.2ms)[0m  SELECT `settings`.* FROM `settings` WHERE `settings`.`name` = 'work_package_list_default_columns' LIMIT 1
+  [1m[36mSetting Load (0.1ms)[0m  [1mSELECT `settings`.* FROM `settings` WHERE `settings`.`name` = 'work_package_list_default_columns' LIMIT 1[0m
+  [1m[35m (0.0ms)[0m  BEGIN
+  [1m[36mSetting Exists (0.2ms)[0m  [1mSELECT 1 AS one FROM `settings` WHERE `settings`.`name` = BINARY 'work_package_list_default_columns' LIMIT 1[0m
+  [1m[35mSQL (0.2ms)[0m  INSERT INTO `settings` (`name`, `updated_on`, `value`) VALUES ('work_package_list_default_columns', '2013-11-11 07:12:46', '---\n- type\n- status\n- priority\n- subject\n- assigned_to\n- updated_at\n')
+  [1m[36m (38.9ms)[0m  [1mCOMMIT[0m
+  [1m[35mSetting Load (0.3ms)[0m  SELECT `settings`.* FROM `settings` WHERE `settings`.`name` = 'notified_events' LIMIT 1
+  [1m[36mSetting Load (0.1ms)[0m  [1mSELECT `settings`.* FROM `settings` WHERE `settings`.`name` = 'notified_events' LIMIT 1[0m
+  [1m[35m (0.0ms)[0m  BEGIN
+  [1m[36mSetting Exists (0.2ms)[0m  [1mSELECT 1 AS one FROM `settings` WHERE `settings`.`name` = BINARY 'notified_events' LIMIT 1[0m
+  [1m[35mSQL (0.1ms)[0m  INSERT INTO `settings` (`name`, `updated_on`, `value`) VALUES ('notified_events', '2013-11-11 07:12:46', '---\n- issue_added\n- issue_updated\n')
+  [1m[36m (37.2ms)[0m  [1mCOMMIT[0m
+  [1m[35mSetting Load (0.3ms)[0m  SELECT `settings`.* FROM `settings` WHERE `settings`.`name` = 'work_package_done_ratio' LIMIT 1
+  [1m[36mSetting Load (0.1ms)[0m  [1mSELECT `settings`.* FROM `settings` WHERE `settings`.`name` = 'work_package_done_ratio' LIMIT 1[0m
+  [1m[35m (0.0ms)[0m  BEGIN
+  [1m[36mSetting Exists (0.4ms)[0m  [1mSELECT 1 AS one FROM `settings` WHERE `settings`.`name` = BINARY 'work_package_done_ratio' LIMIT 1[0m
+  [1m[35mSQL (0.2ms)[0m  INSERT INTO `settings` (`name`, `updated_on`, `value`) VALUES ('work_package_done_ratio', '2013-11-11 07:12:46', 'field')
+  [1m[36m (54.1ms)[0m  [1mCOMMIT[0m
+  [1m[35m (82.9ms)[0m  INSERT INTO `schema_migrations` (`version`) VALUES ('20131024115743')
+Migrating to MigrateTimelinesOptions (20131024140048)
+  [1m[36m (0.3ms)[0m  [1m SELECT id, options
+ FROM timelines
+ WHERE options LIKE '%comparison: historical%'
+[0m
+  [1m[35m (0.1ms)[0m   SELECT id, new_id
+ FROM legacy_planning_elements
+
+  [1m[36m (0.1ms)[0m  [1m SELECT id, new_id
+ FROM legacy_planning_element_types
+[0m
+  [1m[35m (0.1ms)[0m   SELECT id, options
+ FROM timelines
+ WHERE 1 = 1
+
+  [1m[36m (43.6ms)[0m  [1mINSERT INTO `schema_migrations` (`version`) VALUES ('20131024140048')[0m
+Migrating to FixWatcherWorkPackageAssociations (20131031170857)
+  [1m[35m (0.2ms)[0m  UPDATE `watchers`
+ SET watchable_type='WorkPackage'
+ WHERE watchable_type='Issue'
+  [1m[36m (0.1ms)[0m  [1m UPDATE `watchers` AS first
+ LEFT JOIN `legacy_planning_elements` AS second ON first.watchable_id = second.id
+ SET watchable_id = second.new_id
+ WHERE watchable_type = 'Timelines::PlanningElement';
+[0m
+  [1m[35m (0.1ms)[0m  UPDATE `watchers`
+ SET watchable_type='WorkPackage'
+ WHERE watchable_type='Timelines::PlanningElement'
+  [1m[36m (41.1ms)[0m  [1mINSERT INTO `schema_migrations` (`version`) VALUES ('20131031170857')[0m
+Migrating to MigrateDefaultValuesInWorkPackageJournals (20131101125921)
+  [1m[35m (0.4ms)[0m   UPDATE work_package_journals AS wpj
+ LEFT JOIN journals AS j ON j.id = wpj.journal_id
+ LEFT JOIN work_packages AS wp ON wp.id = j.journable_id
+ SET wpj.author_id = wp.author_id
+ WHERE wpj.author_id = 0;
+
+  [1m[36m (0.1ms)[0m  [1m UPDATE work_package_journals AS wpj
+ LEFT JOIN journals AS j ON j.id = wpj.journal_id
+ LEFT JOIN work_packages AS wp ON wp.id = j.journable_id
+ SET wpj.status_id = wp.status_id
+ WHERE wpj.status_id = 0;
+[0m
+  [1m[35m (0.1ms)[0m   UPDATE work_package_journals AS wpj
+ LEFT JOIN journals AS j ON j.id = wpj.journal_id
+ LEFT JOIN work_packages AS wp ON wp.id = j.journable_id
+ SET wpj.priority_id = wp.priority_id
+ WHERE wpj.priority_id = 0;
+
+  [1m[36m (46.4ms)[0m  [1mINSERT INTO `schema_migrations` (`version`) VALUES ('20131101125921')[0m
+Migrating to RepairCustomizableJournals (20131108122428)
+  [1m[35m (0.3ms)[0m   SELECT id, changed_data, version, journaled_id
+ FROM legacy_journals
+ WHERE type = 'IssueJournal' AND changed_data LIKE '%custom_values%'
+
+  [1m[36m (46.8ms)[0m  [1mINSERT INTO `schema_migrations` (`version`) VALUES ('20131108122428')[0m
+Migrating to AddIndexToAllTheJournals (20131108124300)
+  [1m[35m (157.3ms)[0m  CREATE INDEX `index_attachment_journals_on_journal_id` ON `attachment_journals` (`journal_id`)
+  [1m[36m (158.7ms)[0m  [1mCREATE INDEX `index_changeset_journals_on_journal_id` ON `changeset_journals` (`journal_id`)[0m
+  [1m[35m (159.9ms)[0m  CREATE INDEX `index_message_journals_on_journal_id` ON `message_journals` (`journal_id`)
+  [1m[36m (167.2ms)[0m  [1mCREATE INDEX `index_news_journals_on_journal_id` ON `news_journals` (`journal_id`)[0m
+  [1m[35m (159.1ms)[0m  CREATE INDEX `index_time_entry_journals_on_journal_id` ON `time_entry_journals` (`journal_id`)
+  [1m[36m (167.0ms)[0m  [1mCREATE INDEX `index_wiki_content_journals_on_journal_id` ON `wiki_content_journals` (`journal_id`)[0m
+  [1m[35m (167.1ms)[0m  CREATE INDEX `index_work_package_journals_on_journal_id` ON `work_package_journals` (`journal_id`)
+  [1m[36m (33.0ms)[0m  [1mINSERT INTO `schema_migrations` (`version`) VALUES ('20131108124300')[0m
+  [1m[35m (0.3ms)[0m  SELECT `schema_migrations`.`version` FROM `schema_migrations` 
+Connecting to database specified by database.yml
+  [1m[36m (4.2ms)[0m  [1mSELECT MAX(`settings`.`updated_on`) AS max_id FROM `settings` [0m
+  [1m[35mSetting Load (0.3ms)[0m  SELECT `settings`.* FROM `settings` WHERE `settings`.`name` = 'available_languages' LIMIT 1
+Creating scope :open. Overwriting existing method WorkPackage.open.
+Creating scope :open. Overwriting existing method Version.open.
+Creating scope :public. Overwriting existing method Project.public.
+Creating scope :changing. Overwriting existing method Journal.changing.
+
+
+Started GET "/" for 127.0.0.1 at 2013-11-11 12:44:08 +0530
+Processing by WelcomeController#index as HTML
+  [1m[36m (0.1ms)[0m  [1mSELECT MAX(`settings`.`updated_on`) AS max_id FROM `settings` [0m
+  [1m[35mSetting Load (0.3ms)[0m  SELECT `settings`.* FROM `settings` WHERE `settings`.`name` = 'rest_api_enabled' LIMIT 1
+  [1m[36mAnonymousUser Load (0.3ms)[0m  [1mSELECT `users`.* FROM `users` WHERE `users`.`type` IN ('AnonymousUser') LIMIT 1[0m
+  [1m[35m (0.1ms)[0m  BEGIN
+  [1m[36mCACHE (0.0ms)[0m  [1mSELECT `users`.* FROM `users` WHERE `users`.`type` IN ('AnonymousUser') LIMIT 1[0m
+  [1m[35mSetting Load (0.3ms)[0m  SELECT `settings`.* FROM `settings` WHERE `settings`.`name` = 'default_notification_option' LIMIT 1
+  [1m[36mSQL (0.4ms)[0m  [1mINSERT INTO `users` (`admin`, `auth_source_id`, `created_on`, `failed_login_count`, `first_login`, `firstname`, `force_password_change`, `identity_url`, `language`, `last_failed_login_on`, `last_login_on`, `lastname`, `login`, `mail`, `mail_notification`, `status`, `type`, `updated_on`) VALUES (0, NULL, '2013-11-11 07:14:09', 0, 1, '', 0, NULL, '', NULL, NULL, 'Anonymous', '', '', 'only_my_events', 0, 'AnonymousUser', '2013-11-11 07:14:09')[0m
+  [1m[35mSQL (0.7ms)[0m  SELECT `custom_values`.`id` AS t0_r0, `custom_values`.`customized_type` AS t0_r1, `custom_values`.`customized_id` AS t0_r2, `custom_values`.`custom_field_id` AS t0_r3, `custom_values`.`value` AS t0_r4, `custom_fields`.`id` AS t1_r0, `custom_fields`.`type` AS t1_r1, `custom_fields`.`field_format` AS t1_r2, `custom_fields`.`regexp` AS t1_r3, `custom_fields`.`min_length` AS t1_r4, `custom_fields`.`max_length` AS t1_r5, `custom_fields`.`is_required` AS t1_r6, `custom_fields`.`is_for_all` AS t1_r7, `custom_fields`.`is_filter` AS t1_r8, `custom_fields`.`position` AS t1_r9, `custom_fields`.`searchable` AS t1_r10, `custom_fields`.`editable` AS t1_r11, `custom_fields`.`visible` AS t1_r12 FROM `custom_values` LEFT OUTER JOIN `custom_fields` ON `custom_fields`.`id` = `custom_values`.`custom_field_id` WHERE `custom_values`.`customized_id` = 1 AND `custom_values`.`customized_type` = 'Principal' ORDER BY custom_fields.position
+  [1m[36m (37.6ms)[0m  [1mCOMMIT[0m
+  [1m[35mSetting Load (0.3ms)[0m  SELECT `settings`.* FROM `settings` WHERE `settings`.`name` = 'login_required' LIMIT 1
+  [1m[36mSetting Load (0.2ms)[0m  [1mSELECT `settings`.* FROM `settings` WHERE `settings`.`name` = 'log_requesting_user' LIMIT 1[0m
+  [1m[35mRole Load (0.2ms)[0m  SELECT `roles`.* FROM `roles` WHERE `roles`.`builtin` = 2 LIMIT 1
+  [1m[36m (0.1ms)[0m  [1mBEGIN[0m
+  [1m[35mRole Exists (0.3ms)[0m  SELECT 1 AS one FROM `roles` WHERE `roles`.`name` = BINARY 'Anonymous' LIMIT 1
+  [1m[36mSQL (0.2ms)[0m  [1mUPDATE `roles` SET position = (position + 1) WHERE (1 = 1 AND position >= 0)[0m
+  [1m[35mSQL (0.2ms)[0m  INSERT INTO `roles` (`assignable`, `builtin`, `name`, `permissions`, `position`) VALUES (1, 2, 'Anonymous', NULL, 0)
+  [1m[36m (35.4ms)[0m  [1mCOMMIT[0m
+  [1m[35mRole Load (0.3ms)[0m  SELECT `roles`.* FROM `roles` WHERE `roles`.`builtin` = 2 LIMIT 1
+  [1m[36m (0.4ms)[0m  [1mSELECT COUNT(DISTINCT `members`.`id`) FROM `members` LEFT OUTER JOIN `projects` ON `projects`.`id` = `members`.`project_id` LEFT OUTER JOIN `member_roles` ON `member_roles`.`member_id` = `members`.`id` LEFT OUTER JOIN `roles` ON `roles`.`id` = `member_roles`.`role_id` WHERE `members`.`user_id` = 1 AND (projects.status=1)[0m
+  [1m[35mSetting Load (0.4ms)[0m  SELECT `settings`.* FROM `settings` WHERE `settings`.`name` = 'welcome_text' LIMIT 1
+  [1m[36m (0.5ms)[0m  [1mSELECT COUNT(DISTINCT count_column) FROM (SELECT `news`.`id` AS count_column FROM `news` LEFT OUTER JOIN `users` ON `users`.`id` = `news`.`author_id` AND `users`.`type` IN ('User', 'AnonymousUser', 'DeletedUser') LEFT OUTER JOIN `projects` ON `projects`.`id` = `news`.`project_id` WHERE (((projects.status=1 AND projects.id IN (SELECT em.project_id FROM enabled_modules em WHERE em.name='news')) AND (projects.is_public = 1))) LIMIT 5) subquery_for_count [0m
+  [1m[35m (0.2ms)[0m  SELECT COUNT(count_column) FROM (SELECT 1 AS count_column FROM `projects` WHERE (projects.status=1 AND projects.is_public = 1) LIMIT 5) subquery_for_count 
+  [1m[36mSetting Load (0.2ms)[0m  [1mSELECT `settings`.* FROM `settings` WHERE `settings`.`name` = 'app_title' LIMIT 1[0m
+  [1m[35mSetting Load (0.2ms)[0m  SELECT `settings`.* FROM `settings` WHERE `settings`.`name` = 'feeds_enabled' LIMIT 1
+  Rendered welcome/index.html.erb within layouts/base (34.6ms)
+  [1m[36mSetting Load (0.3ms)[0m  [1mSELECT `settings`.* FROM `settings` WHERE `settings`.`name` = 'software_name' LIMIT 1[0m
+  [1m[35mSetting Load (0.2ms)[0m  SELECT `settings`.* FROM `settings` WHERE `settings`.`name` = 'ui_theme' LIMIT 1
+Compiled reset.css  (0ms)  (pid 15822)
+Compiled jquery.ui.core.css  (1ms)  (pid 15822)
+Compiled jquery.ui.theme.css  (9ms)  (pid 15822)
+Compiled jquery.ui.accordion.css  (19ms)  (pid 15822)
+Compiled jquery.ui.menu.css  (4ms)  (pid 15822)
+Compiled jquery.ui.autocomplete.css  (17ms)  (pid 15822)
+Compiled jquery.ui.button.css  (5ms)  (pid 15822)
+Compiled jquery.ui.datepicker.css  (6ms)  (pid 15822)
+Compiled jquery.ui.resizable.css  (4ms)  (pid 15822)
+Compiled jquery.ui.dialog.css  (18ms)  (pid 15822)
+Compiled jquery.ui.progressbar.css  (4ms)  (pid 15822)
+Compiled jquery.ui.selectable.css  (4ms)  (pid 15822)
+Compiled jquery.ui.slider.css  (5ms)  (pid 15822)
+Compiled jquery.ui.spinner.css  (6ms)  (pid 15822)
+Compiled jquery.ui.tabs.css  (5ms)  (pid 15822)
+Compiled jquery.ui.tooltip.css  (4ms)  (pid 15822)
+Compiled jquery.ui.base.css  (494ms)  (pid 15822)
+Compiled jquery.ui.all.css  (503ms)  (pid 15822)
+Compiled select2.css  (320ms)  (pid 15822)
+Compiled select2_customizing.css  (2ms)  (pid 15822)
+Compiled jstoolbar.css  (2ms)  (pid 15822)
+Compiled context_menu.css  (2ms)  (pid 15822)
+Compiled calendar.css  (0ms)  (pid 15822)
+Compiled print.css  (0ms)  (pid 15822)
+Compiled scm.css  (0ms)  (pid 15822)
+Compiled top-shelf.css  (1ms)  (pid 15822)
+Compiled application.css  (1084ms)  (pid 15822)
+Compiled default/application.css  (50ms)  (pid 15822)
+Compiled default.css  (1302ms)  (pid 15822)
+Compiled jquery.js  (1ms)  (pid 15822)
+Compiled jquery.ui.core.js  (0ms)  (pid 15822)
+Compiled jquery.ui.widget.js  (0ms)  (pid 15822)
+Compiled jquery.ui.accordion.js  (13ms)  (pid 15822)
+Compiled jquery.ui.position.js  (0ms)  (pid 15822)
+Compiled jquery.ui.menu.js  (86ms)  (pid 15822)
+Compiled jquery.ui.autocomplete.js  (97ms)  (pid 15822)
+Compiled jquery.ui.button.js  (3ms)  (pid 15822)
+Compiled jquery.ui.datepicker.js  (2ms)  (pid 15822)
+Compiled jquery.ui.mouse.js  (3ms)  (pid 15822)
+Compiled jquery.ui.draggable.js  (14ms)  (pid 15822)
+Compiled jquery.ui.resizable.js  (4ms)  (pid 15822)
+Compiled jquery.ui.dialog.js  (39ms)  (pid 15822)
+Compiled jquery.ui.droppable.js  (6ms)  (pid 15822)
+Compiled jquery.ui.effect.js  (0ms)  (pid 15822)
+Compiled jquery.ui.effect-blind.js  (8ms)  (pid 15822)
+Compiled jquery.ui.effect-bounce.js  (1ms)  (pid 15822)
+Compiled jquery.ui.effect-clip.js  (1ms)  (pid 15822)
+Compiled jquery.ui.effect-drop.js  (2ms)  (pid 15822)
+Compiled jquery.ui.effect-explode.js  (2ms)  (pid 15822)
+Compiled jquery.ui.effect-fade.js  (1ms)  (pid 15822)
+Compiled jquery.ui.effect-fold.js  (1ms)  (pid 15822)
+Compiled jquery.ui.effect-highlight.js  (1ms)  (pid 15822)
+Compiled jquery.ui.effect-pulsate.js  (2ms)  (pid 15822)
+Compiled jquery.ui.effect-scale.js  (1ms)  (pid 15822)
+Compiled jquery.ui.effect-shake.js  (1ms)  (pid 15822)
+Compiled jquery.ui.effect-slide.js  (2ms)  (pid 15822)
+Compiled jquery.ui.effect-transfer.js  (1ms)  (pid 15822)
+Compiled jquery.ui.progressbar.js  (3ms)  (pid 15822)
+Compiled jquery.ui.selectable.js  (5ms)  (pid 15822)
+Compiled jquery.ui.slider.js  (4ms)  (pid 15822)
+Compiled jquery.ui.sortable.js  (4ms)  (pid 15822)
+Compiled jquery.ui.spinner.js  (4ms)  (pid 15822)
+Compiled jquery.ui.tabs.js  (3ms)  (pid 15822)
+Compiled jquery.ui.tooltip.js  (4ms)  (pid 15822)
+Compiled jquery.ui.all.js  (865ms)  (pid 15822)
+Compiled jquery-ui-i18n.js  (0ms)  (pid 15822)
+Compiled jquery.menu_expand.js  (0ms)  (pid 15822)
+Compiled jquery_ujs.js  (0ms)  (pid 15822)
+Compiled jquery_noconflict.js  (0ms)  (pid 15822)
+Compiled prototype.js  (1ms)  (pid 15822)
+Compiled effects.js  (0ms)  (pid 15822)
+Compiled dragdrop.js  (0ms)  (pid 15822)
+Compiled controls.js  (0ms)  (pid 15822)
+Compiled i18n/shims.js  (0ms)  (pid 15822)
+Compiled i18n.js  (0ms)  (pid 15822)
+Compiled i18n/translations.js  (99ms)  (pid 15822)
+Compiled select2.js  (1ms)  (pid 15822)
+Compiled top_menu.js  (0ms)  (pid 15822)
+Compiled action_menu.js  (0ms)  (pid 15822)
+Compiled openproject.js  (0ms)  (pid 15822)
+Compiled breadcrumb.js  (0ms)  (pid 15822)
+Compiled findDomElement.js  (0ms)  (pid 15822)
+Compiled context_menu.js  (3ms)  (pid 15822)
+Compiled jstoolbar/jstoolbar.js  (0ms)  (pid 15822)
+Compiled jstoolbar/textile.js  (0ms)  (pid 15822)
+Compiled jstoolbar.js  (22ms)  (pid 15822)
+Compiled ajaxappender.js  (0ms)  (pid 15822)
+Compiled settings.js  (1ms)  (pid 15822)
+Compiled modal.js  (0ms)  (pid 15822)
+Compiled mousetrap.js  (0ms)  (pid 15822)
+Compiled keyboard_shortcuts.js  (18ms)  (pid 15822)
+Compiled top-shelf.js  (85ms)  (pid 15822)
+Compiled unsupported-browsers.js  (0ms)  (pid 15822)
+Compiled application.js  (1727ms)  (pid 15822)
+  [1m[36mUserPreference Load (0.3ms)[0m  [1mSELECT `user_preferences`.* FROM `user_preferences` WHERE `user_preferences`.`user_id` = 1 LIMIT 1[0m
+Compiled accessibility.js  (0ms)  (pid 15822)
+  Rendered search/_mini_form.html.erb (11.4ms)
+  [1m[35m (0.3ms)[0m  SELECT COUNT(*) FROM `projects` WHERE `projects`.`is_public` = 1
+  [1m[36mSetting Load (0.4ms)[0m  [1mSELECT `settings`.* FROM `settings` WHERE `settings`.`name` = 'autologin' LIMIT 1[0m
+  [1m[35mSetting Load (0.3ms)[0m  SELECT `settings`.* FROM `settings` WHERE `settings`.`name` = 'lost_password' LIMIT 1
+  [1m[36mSetting Load (0.3ms)[0m  [1mSELECT `settings`.* FROM `settings` WHERE `settings`.`name` = 'self_registration' LIMIT 1[0m
+  Rendered account/_login.html.erb (10.5ms)
+  Rendered layouts/_action_menu.html.erb (0.7ms)
+  [1m[35mSetting Load (0.3ms)[0m  SELECT `settings`.* FROM `settings` WHERE `settings`.`name` = 'software_url' LIMIT 1
+  [1m[36mSetting Load (0.3ms)[0m  [1mSELECT `settings`.* FROM `settings` WHERE `settings`.`name` = 'additional_footer_content' LIMIT 1[0m
+Completed 200 OK in 4845.1ms (Views: 4023.1ms | ActiveRecord: 91.2ms)
+
+
+Started GET "/assets/reset.css?body=1" for 127.0.0.1 at 2013-11-11 12:44:14 +0530
+RailsDevTweaks: Skipping ActionDispatch::Reloader hooks for this request.
+Served asset /reset.css - 200 OK (2ms)
+
+
+Started GET "/assets/jquery.ui.core.css?body=1" for 127.0.0.1 at 2013-11-11 12:44:14 +0530
+RailsDevTweaks: Skipping ActionDispatch::Reloader hooks for this request.
+Served asset /jquery.ui.core.css - 200 OK (3ms)
+
+
+Started GET "/assets/jquery.ui.theme.css?body=1" for 127.0.0.1 at 2013-11-11 12:44:14 +0530
+RailsDevTweaks: Skipping ActionDispatch::Reloader hooks for this request.
+Served asset /jquery.ui.theme.css - 200 OK (4ms)
+
+
+Started GET "/assets/jquery.ui.accordion.css?body=1" for 127.0.0.1 at 2013-11-11 12:44:14 +0530
+RailsDevTweaks: Skipping ActionDispatch::Reloader hooks for this request.
+Served asset /jquery.ui.accordion.css - 200 OK (6ms)
+
+
+Started GET "/assets/jquery.ui.menu.css?body=1" for 127.0.0.1 at 2013-11-11 12:44:14 +0530
+RailsDevTweaks: Skipping ActionDispatch::Reloader hooks for this request.
+Served asset /jquery.ui.menu.css - 200 OK (6ms)
+
+
+Started GET "/assets/jquery.ui.autocomplete.css?body=1" for 127.0.0.1 at 2013-11-11 12:44:14 +0530
+RailsDevTweaks: Skipping ActionDispatch::Reloader hooks for this request.
+Served asset /jquery.ui.autocomplete.css - 200 OK (7ms)
+
+
+Started GET "/assets/jquery.ui.button.css?body=1" for 127.0.0.1 at 2013-11-11 12:44:14 +0530
+RailsDevTweaks: Skipping ActionDispatch::Reloader hooks for this request.
+Served asset /jquery.ui.button.css - 200 OK (5ms)
+
+
+Started GET "/assets/jquery.ui.datepicker.css?body=1" for 127.0.0.1 at 2013-11-11 12:44:14 +0530
+RailsDevTweaks: Skipping ActionDispatch::Reloader hooks for this request.
+Served asset /jquery.ui.datepicker.css - 200 OK (5ms)
+
+
+Started GET "/assets/jquery.ui.resizable.css?body=1" for 127.0.0.1 at 2013-11-11 12:44:14 +0530
+RailsDevTweaks: Skipping ActionDispatch::Reloader hooks for this request.
+Served asset /jquery.ui.resizable.css - 200 OK (5ms)
+
+
+Started GET "/assets/jquery.ui.dialog.css?body=1" for 127.0.0.1 at 2013-11-11 12:44:14 +0530
+RailsDevTweaks: Skipping ActionDispatch::Reloader hooks for this request.
+Served asset /jquery.ui.dialog.css - 200 OK (7ms)
+
+
+Started GET "/assets/jquery.ui.progressbar.css?body=1" for 127.0.0.1 at 2013-11-11 12:44:14 +0530
+RailsDevTweaks: Skipping ActionDispatch::Reloader hooks for this request.
+Served asset /jquery.ui.progressbar.css - 200 OK (5ms)
+
+
+Started GET "/assets/jquery.ui.selectable.css?body=1" for 127.0.0.1 at 2013-11-11 12:44:14 +0530
+RailsDevTweaks: Skipping ActionDispatch::Reloader hooks for this request.
+Served asset /jquery.ui.selectable.css - 200 OK (5ms)
+
+
+Started GET "/assets/jquery.ui.slider.css?body=1" for 127.0.0.1 at 2013-11-11 12:44:14 +0530
+RailsDevTweaks: Skipping ActionDispatch::Reloader hooks for this request.
+Served asset /jquery.ui.slider.css - 200 OK (5ms)
+
+
+Started GET "/assets/jquery.ui.spinner.css?body=1" for 127.0.0.1 at 2013-11-11 12:44:14 +0530
+RailsDevTweaks: Skipping ActionDispatch::Reloader hooks for this request.
+Served asset /jquery.ui.spinner.css - 200 OK (6ms)
+
+
+Started GET "/assets/jquery.ui.tabs.css?body=1" for 127.0.0.1 at 2013-11-11 12:44:14 +0530
+RailsDevTweaks: Skipping ActionDispatch::Reloader hooks for this request.
+Served asset /jquery.ui.tabs.css - 200 OK (5ms)
+
+
+Started GET "/assets/jquery.ui.tooltip.css?body=1" for 127.0.0.1 at 2013-11-11 12:44:14 +0530
+RailsDevTweaks: Skipping ActionDispatch::Reloader hooks for this request.
+Served asset /jquery.ui.tooltip.css - 200 OK (5ms)
+
+
+Started GET "/assets/jquery.ui.base.css?body=1" for 127.0.0.1 at 2013-11-11 12:44:14 +0530
+RailsDevTweaks: Skipping ActionDispatch::Reloader hooks for this request.
+Served asset /jquery.ui.base.css - 200 OK (18ms)
+
+
+Started GET "/assets/jquery.ui.all.css?body=1" for 127.0.0.1 at 2013-11-11 12:44:14 +0530
+RailsDevTweaks: Skipping ActionDispatch::Reloader hooks for this request.
+Served asset /jquery.ui.all.css - 200 OK (20ms)
+
+
+Started GET "/assets/select2.css?body=1" for 127.0.0.1 at 2013-11-11 12:44:14 +0530
+RailsDevTweaks: Skipping ActionDispatch::Reloader hooks for this request.
+Served asset /select2.css - 200 OK (3ms)
+
+
+Started GET "/assets/select2_customizing.css?body=1" for 127.0.0.1 at 2013-11-11 12:44:14 +0530
+RailsDevTweaks: Skipping ActionDispatch::Reloader hooks for this request.
+Served asset /select2_customizing.css - 200 OK (2ms)
+
+
+Started GET "/assets/jstoolbar.css?body=1" for 127.0.0.1 at 2013-11-11 12:44:14 +0530
+RailsDevTweaks: Skipping ActionDispatch::Reloader hooks for this request.
+Served asset /jstoolbar.css - 200 OK (2ms)
+
+
+Started GET "/assets/context_menu.css?body=1" for 127.0.0.1 at 2013-11-11 12:44:14 +0530
+RailsDevTweaks: Skipping ActionDispatch::Reloader hooks for this request.
+Served asset /context_menu.css - 200 OK (2ms)
+
+
+Started GET "/assets/calendar.css?body=1" for 127.0.0.1 at 2013-11-11 12:44:14 +0530
+RailsDevTweaks: Skipping ActionDispatch::Reloader hooks for this request.
+Served asset /calendar.css - 200 OK (2ms)
+
+
+Started GET "/assets/print.css?body=1" for 127.0.0.1 at 2013-11-11 12:44:14 +0530
+RailsDevTweaks: Skipping ActionDispatch::Reloader hooks for this request.
+Served asset /print.css - 200 OK (1ms)
+
+
+Started GET "/assets/scm.css?body=1" for 127.0.0.1 at 2013-11-11 12:44:14 +0530
+RailsDevTweaks: Skipping ActionDispatch::Reloader hooks for this request.
+Served asset /scm.css - 200 OK (2ms)
+
+
+Started GET "/assets/application.css?body=1" for 127.0.0.1 at 2013-11-11 12:44:14 +0530
+RailsDevTweaks: Skipping ActionDispatch::Reloader hooks for this request.
+Served asset /application.css - 200 OK (26ms)
+
+
+Started GET "/assets/top-shelf.css?body=1" for 127.0.0.1 at 2013-11-11 12:44:14 +0530
+RailsDevTweaks: Skipping ActionDispatch::Reloader hooks for this request.
+Served asset /top-shelf.css - 200 OK (1ms)
+
+
+Started GET "/assets/default/application.css?body=1" for 127.0.0.1 at 2013-11-11 12:44:14 +0530
+RailsDevTweaks: Skipping ActionDispatch::Reloader hooks for this request.
+Served asset /default/application.css - 200 OK (1ms)
+
+
+Started GET "/assets/default.css?body=1" for 127.0.0.1 at 2013-11-11 12:44:14 +0530
+RailsDevTweaks: Skipping ActionDispatch::Reloader hooks for this request.
+Served asset /default.css - 200 OK (31ms)
+
+
+Started GET "/assets/jquery.js?body=1" for 127.0.0.1 at 2013-11-11 12:44:14 +0530
+RailsDevTweaks: Skipping ActionDispatch::Reloader hooks for this request.
+Served asset /jquery.js - 200 OK (3ms)
+
+
+Started GET "/assets/jquery.ui.core.js?body=1" for 127.0.0.1 at 2013-11-11 12:44:14 +0530
+RailsDevTweaks: Skipping ActionDispatch::Reloader hooks for this request.
+Served asset /jquery.ui.core.js - 200 OK (4ms)
+
+
+Started GET "/assets/jquery.ui.widget.js?body=1" for 127.0.0.1 at 2013-11-11 12:44:14 +0530
+RailsDevTweaks: Skipping ActionDispatch::Reloader hooks for this request.
+Served asset /jquery.ui.widget.js - 200 OK (4ms)
+
+
+Started GET "/assets/jquery.ui.accordion.js?body=1" for 127.0.0.1 at 2013-11-11 12:44:14 +0530
+RailsDevTweaks: Skipping ActionDispatch::Reloader hooks for this request.
+Served asset /jquery.ui.accordion.js - 200 OK (5ms)
+
+
+Started GET "/assets/jquery.ui.position.js?body=1" for 127.0.0.1 at 2013-11-11 12:44:14 +0530
+RailsDevTweaks: Skipping ActionDispatch::Reloader hooks for this request.
+Served asset /jquery.ui.position.js - 200 OK (3ms)
+
+
+Started GET "/assets/jquery.ui.menu.js?body=1" for 127.0.0.1 at 2013-11-11 12:44:14 +0530
+RailsDevTweaks: Skipping ActionDispatch::Reloader hooks for this request.
+Served asset /jquery.ui.menu.js - 200 OK (5ms)
+
+
+Started GET "/assets/jquery.ui.autocomplete.js?body=1" for 127.0.0.1 at 2013-11-11 12:44:14 +0530
+RailsDevTweaks: Skipping ActionDispatch::Reloader hooks for this request.
+Served asset /jquery.ui.autocomplete.js - 200 OK (7ms)
+
+
+Started GET "/assets/jquery.ui.button.js?body=1" for 127.0.0.1 at 2013-11-11 12:44:14 +0530
+RailsDevTweaks: Skipping ActionDispatch::Reloader hooks for this request.
+Served asset /jquery.ui.button.js - 200 OK (5ms)
+
+
+Started GET "/assets/jquery.ui.datepicker.js?body=1" for 127.0.0.1 at 2013-11-11 12:44:14 +0530
+RailsDevTweaks: Skipping ActionDispatch::Reloader hooks for this request.
+Served asset /jquery.ui.datepicker.js - 200 OK (4ms)
+
+
+Started GET "/assets/jquery.ui.draggable.js?body=1" for 127.0.0.1 at 2013-11-11 12:44:14 +0530
+RailsDevTweaks: Skipping ActionDispatch::Reloader hooks for this request.
+Served asset /jquery.ui.draggable.js - 200 OK (5ms)
+
+
+Started GET "/assets/jquery.ui.mouse.js?body=1" for 127.0.0.1 at 2013-11-11 12:44:14 +0530
+RailsDevTweaks: Skipping ActionDispatch::Reloader hooks for this request.
+Served asset /jquery.ui.mouse.js - 200 OK (4ms)
+
+
+Started GET "/assets/jquery.ui.resizable.js?body=1" for 127.0.0.1 at 2013-11-11 12:44:14 +0530
+RailsDevTweaks: Skipping ActionDispatch::Reloader hooks for this request.
+Served asset /jquery.ui.resizable.js - 200 OK (6ms)
+
+
+Started GET "/assets/jquery.ui.dialog.js?body=1" for 127.0.0.1 at 2013-11-11 12:44:14 +0530
+RailsDevTweaks: Skipping ActionDispatch::Reloader hooks for this request.
+Served asset /jquery.ui.dialog.js - 200 OK (10ms)
+
+
+Started GET "/assets/jquery.ui.droppable.js?body=1" for 127.0.0.1 at 2013-11-11 12:44:15 +0530
+RailsDevTweaks: Skipping ActionDispatch::Reloader hooks for this request.
+Served asset /jquery.ui.droppable.js - 200 OK (7ms)
+
+
+Started GET "/assets/jquery.ui.effect.js?body=1" for 127.0.0.1 at 2013-11-11 12:44:15 +0530
+RailsDevTweaks: Skipping ActionDispatch::Reloader hooks for this request.
+Served asset /jquery.ui.effect.js - 200 OK (3ms)
+
+
+Started GET "/assets/jquery.ui.effect-blind.js?body=1" for 127.0.0.1 at 2013-11-11 12:44:15 +0530
+RailsDevTweaks: Skipping ActionDispatch::Reloader hooks for this request.
+Served asset /jquery.ui.effect-blind.js - 200 OK (4ms)
+
+
+Started GET "/assets/jquery.ui.effect-bounce.js?body=1" for 127.0.0.1 at 2013-11-11 12:44:15 +0530
+RailsDevTweaks: Skipping ActionDispatch::Reloader hooks for this request.
+Served asset /jquery.ui.effect-bounce.js - 200 OK (5ms)
+
+
+Started GET "/assets/jquery.ui.effect-clip.js?body=1" for 127.0.0.1 at 2013-11-11 12:44:15 +0530
+RailsDevTweaks: Skipping ActionDispatch::Reloader hooks for this request.
+Served asset /jquery.ui.effect-clip.js - 200 OK (5ms)
+
+
+Started GET "/assets/jquery.ui.effect-drop.js?body=1" for 127.0.0.1 at 2013-11-11 12:44:15 +0530
+RailsDevTweaks: Skipping ActionDispatch::Reloader hooks for this request.
+Served asset /jquery.ui.effect-drop.js - 200 OK (4ms)
+
+
+Started GET "/assets/jquery.ui.effect-explode.js?body=1" for 127.0.0.1 at 2013-11-11 12:44:15 +0530
+RailsDevTweaks: Skipping ActionDispatch::Reloader hooks for this request.
+Served asset /jquery.ui.effect-explode.js - 200 OK (5ms)
+
+
+Started GET "/assets/jquery.ui.effect-fold.js?body=1" for 127.0.0.1 at 2013-11-11 12:44:15 +0530
+RailsDevTweaks: Skipping ActionDispatch::Reloader hooks for this request.
+Served asset /jquery.ui.effect-fold.js - 200 OK (4ms)
+
+
+Started GET "/assets/jquery.ui.effect-pulsate.js?body=1" for 127.0.0.1 at 2013-11-11 12:44:15 +0530
+RailsDevTweaks: Skipping ActionDispatch::Reloader hooks for this request.
+Served asset /jquery.ui.effect-pulsate.js - 200 OK (4ms)
+
+
+Started GET "/assets/jquery.ui.effect-highlight.js?body=1" for 127.0.0.1 at 2013-11-11 12:44:15 +0530
+RailsDevTweaks: Skipping ActionDispatch::Reloader hooks for this request.
+Served asset /jquery.ui.effect-highlight.js - 200 OK (4ms)
+
+
+Started GET "/assets/jquery.ui.effect-fade.js?body=1" for 127.0.0.1 at 2013-11-11 12:44:15 +0530
+RailsDevTweaks: Skipping ActionDispatch::Reloader hooks for this request.
+Served asset /jquery.ui.effect-fade.js - 200 OK (4ms)
+
+
+Started GET "/assets/jquery.ui.effect-scale.js?body=1" for 127.0.0.1 at 2013-11-11 12:44:15 +0530
+RailsDevTweaks: Skipping ActionDispatch::Reloader hooks for this request.
+Served asset /jquery.ui.effect-scale.js - 200 OK (4ms)
+
+
+Started GET "/assets/jquery.ui.effect-shake.js?body=1" for 127.0.0.1 at 2013-11-11 12:44:15 +0530
+RailsDevTweaks: Skipping ActionDispatch::Reloader hooks for this request.
+Served asset /jquery.ui.effect-shake.js - 200 OK (5ms)
+
+
+Started GET "/assets/jquery.ui.effect-slide.js?body=1" for 127.0.0.1 at 2013-11-11 12:44:15 +0530
+RailsDevTweaks: Skipping ActionDispatch::Reloader hooks for this request.
+Served asset /jquery.ui.effect-slide.js - 200 OK (4ms)
+
+
+Started GET "/assets/jquery.ui.effect-transfer.js?body=1" for 127.0.0.1 at 2013-11-11 12:44:15 +0530
+RailsDevTweaks: Skipping ActionDispatch::Reloader hooks for this request.
+Served asset /jquery.ui.effect-transfer.js - 200 OK (4ms)
+
+
+Started GET "/assets/jquery.ui.progressbar.js?body=1" for 127.0.0.1 at 2013-11-11 12:44:15 +0530
+RailsDevTweaks: Skipping ActionDispatch::Reloader hooks for this request.
+Served asset /jquery.ui.progressbar.js - 200 OK (4ms)
+
+
+Started GET "/assets/jquery.ui.selectable.js?body=1" for 127.0.0.1 at 2013-11-11 12:44:15 +0530
+RailsDevTweaks: Skipping ActionDispatch::Reloader hooks for this request.
+Served asset /jquery.ui.selectable.js - 200 OK (5ms)
+
+
+Started GET "/assets/jquery.ui.sortable.js?body=1" for 127.0.0.1 at 2013-11-11 12:44:15 +0530
+RailsDevTweaks: Skipping ActionDispatch::Reloader hooks for this request.
+Served asset /jquery.ui.sortable.js - 200 OK (5ms)
+
+
+Started GET "/assets/jquery.ui.spinner.js?body=1" for 127.0.0.1 at 2013-11-11 12:44:15 +0530
+RailsDevTweaks: Skipping ActionDispatch::Reloader hooks for this request.
+Served asset /jquery.ui.spinner.js - 200 OK (6ms)
+
+
+Started GET "/assets/jquery.ui.tabs.js?body=1" for 127.0.0.1 at 2013-11-11 12:44:15 +0530
+RailsDevTweaks: Skipping ActionDispatch::Reloader hooks for this request.
+Served asset /jquery.ui.tabs.js - 200 OK (5ms)
+
+
+Started GET "/assets/jquery.ui.slider.js?body=1" for 127.0.0.1 at 2013-11-11 12:44:15 +0530
+RailsDevTweaks: Skipping ActionDispatch::Reloader hooks for this request.
+Served asset /jquery.ui.slider.js - 200 OK (7ms)
+
+
+Started GET "/assets/jquery.ui.tooltip.js?body=1" for 127.0.0.1 at 2013-11-11 12:44:15 +0530
+RailsDevTweaks: Skipping ActionDispatch::Reloader hooks for this request.
+Served asset /jquery.ui.tooltip.js - 200 OK (6ms)
+
+
+Started GET "/assets/jquery.ui.all.js?body=1" for 127.0.0.1 at 2013-11-11 12:44:15 +0530
+RailsDevTweaks: Skipping ActionDispatch::Reloader hooks for this request.
+Served asset /jquery.ui.all.js - 200 OK (37ms)
+
+
+Started GET "/assets/jquery-ui-i18n.js?body=1" for 127.0.0.1 at 2013-11-11 12:44:15 +0530
+RailsDevTweaks: Skipping ActionDispatch::Reloader hooks for this request.
+Served asset /jquery-ui-i18n.js - 200 OK (2ms)
+
+
+Started GET "/assets/jquery.menu_expand.js?body=1" for 127.0.0.1 at 2013-11-11 12:44:15 +0530
+RailsDevTweaks: Skipping ActionDispatch::Reloader hooks for this request.
+Served asset /jquery.menu_expand.js - 200 OK (1ms)
+
+
+Started GET "/assets/jquery_noconflict.js?body=1" for 127.0.0.1 at 2013-11-11 12:44:15 +0530
+RailsDevTweaks: Skipping ActionDispatch::Reloader hooks for this request.
+Served asset /jquery_noconflict.js - 200 OK (1ms)
+
+
+Started GET "/assets/jquery_ujs.js?body=1" for 127.0.0.1 at 2013-11-11 12:44:15 +0530
+RailsDevTweaks: Skipping ActionDispatch::Reloader hooks for this request.
+Served asset /jquery_ujs.js - 200 OK (2ms)
+
+
+Started GET "/assets/prototype.js?body=1" for 127.0.0.1 at 2013-11-11 12:44:15 +0530
+RailsDevTweaks: Skipping ActionDispatch::Reloader hooks for this request.
+Served asset /prototype.js - 200 OK (2ms)
+
+
+Started GET "/assets/effects.js?body=1" for 127.0.0.1 at 2013-11-11 12:44:15 +0530
+RailsDevTweaks: Skipping ActionDispatch::Reloader hooks for this request.
+Served asset /effects.js - 200 OK (2ms)
+
+
+Started GET "/assets/i18n/shims.js?body=1" for 127.0.0.1 at 2013-11-11 12:44:15 +0530
+RailsDevTweaks: Skipping ActionDispatch::Reloader hooks for this request.
+Served asset /i18n/shims.js - 200 OK (1ms)
+
+
+Started GET "/assets/i18n.js?body=1" for 127.0.0.1 at 2013-11-11 12:44:15 +0530
+RailsDevTweaks: Skipping ActionDispatch::Reloader hooks for this request.
+Served asset /i18n.js - 200 OK (2ms)
+
+
+Started GET "/assets/dragdrop.js?body=1" for 127.0.0.1 at 2013-11-11 12:44:15 +0530
+RailsDevTweaks: Skipping ActionDispatch::Reloader hooks for this request.
+Served asset /dragdrop.js - 200 OK (2ms)
+
+
+Started GET "/assets/controls.js?body=1" for 127.0.0.1 at 2013-11-11 12:44:15 +0530
+RailsDevTweaks: Skipping ActionDispatch::Reloader hooks for this request.
+Served asset /controls.js - 200 OK (2ms)
+
+
+Started GET "/assets/i18n/translations.js?body=1" for 127.0.0.1 at 2013-11-11 12:44:15 +0530
+RailsDevTweaks: Skipping ActionDispatch::Reloader hooks for this request.
+Served asset /i18n/translations.js - 200 OK (86ms)
+
+
+Started GET "/assets/select2.js?body=1" for 127.0.0.1 at 2013-11-11 12:44:15 +0530
+RailsDevTweaks: Skipping ActionDispatch::Reloader hooks for this request.
+Served asset /select2.js - 200 OK (3ms)
+
+
+Started GET "/assets/action_menu.js?body=1" for 127.0.0.1 at 2013-11-11 12:44:15 +0530
+RailsDevTweaks: Skipping ActionDispatch::Reloader hooks for this request.
+Served asset /action_menu.js - 200 OK (1ms)
+
+
+Started GET "/assets/openproject.js?body=1" for 127.0.0.1 at 2013-11-11 12:44:15 +0530
+RailsDevTweaks: Skipping ActionDispatch::Reloader hooks for this request.
+Served asset /openproject.js - 200 OK (1ms)
+
+
+Started GET "/assets/top_menu.js?body=1" for 127.0.0.1 at 2013-11-11 12:44:15 +0530
+RailsDevTweaks: Skipping ActionDispatch::Reloader hooks for this request.
+Served asset /top_menu.js - 200 OK (2ms)
+
+
+Started GET "/assets/breadcrumb.js?body=1" for 127.0.0.1 at 2013-11-11 12:44:15 +0530
+RailsDevTweaks: Skipping ActionDispatch::Reloader hooks for this request.
+Served asset /breadcrumb.js - 200 OK (1ms)
+
+
+Started GET "/assets/context_menu.js?body=1" for 127.0.0.1 at 2013-11-11 12:44:15 +0530
+RailsDevTweaks: Skipping ActionDispatch::Reloader hooks for this request.
+Served asset /context_menu.js - 200 OK (1ms)
+
+
+Started GET "/assets/jstoolbar/textile.js?body=1" for 127.0.0.1 at 2013-11-11 12:44:15 +0530
+RailsDevTweaks: Skipping ActionDispatch::Reloader hooks for this request.
+Served asset /jstoolbar/textile.js - 200 OK (1ms)
+
+
+Started GET "/assets/jstoolbar.js?body=1" for 127.0.0.1 at 2013-11-11 12:44:15 +0530
+RailsDevTweaks: Skipping ActionDispatch::Reloader hooks for this request.
+Served asset /jstoolbar.js - 200 OK (3ms)
+
+
+Started GET "/assets/jstoolbar/jstoolbar.js?body=1" for 127.0.0.1 at 2013-11-11 12:44:15 +0530
+RailsDevTweaks: Skipping ActionDispatch::Reloader hooks for this request.
+Served asset /jstoolbar/jstoolbar.js - 200 OK (1ms)
+
+
+Started GET "/assets/findDomElement.js?body=1" for 127.0.0.1 at 2013-11-11 12:44:15 +0530
+RailsDevTweaks: Skipping ActionDispatch::Reloader hooks for this request.
+Served asset /findDomElement.js - 200 OK (1ms)
+
+
+Started GET "/assets/ajaxappender.js?body=1" for 127.0.0.1 at 2013-11-11 12:44:15 +0530
+RailsDevTweaks: Skipping ActionDispatch::Reloader hooks for this request.
+Served asset /ajaxappender.js - 200 OK (1ms)
+
+
+Started GET "/assets/settings.js?body=1" for 127.0.0.1 at 2013-11-11 12:44:15 +0530
+RailsDevTweaks: Skipping ActionDispatch::Reloader hooks for this request.
+Served asset /settings.js - 200 OK (1ms)
+
+
+Started GET "/assets/keyboard_shortcuts.js?body=1" for 127.0.0.1 at 2013-11-11 12:44:15 +0530
+RailsDevTweaks: Skipping ActionDispatch::Reloader hooks for this request.
+Served asset /keyboard_shortcuts.js - 200 OK (2ms)
+
+
+Started GET "/assets/top-shelf.js?body=1" for 127.0.0.1 at 2013-11-11 12:44:15 +0530
+RailsDevTweaks: Skipping ActionDispatch::Reloader hooks for this request.
+Served asset /top-shelf.js - 200 OK (1ms)
+
+
+Started GET "/assets/mousetrap.js?body=1" for 127.0.0.1 at 2013-11-11 12:44:15 +0530
+RailsDevTweaks: Skipping ActionDispatch::Reloader hooks for this request.
+Served asset /mousetrap.js - 200 OK (2ms)
+
+
+Started GET "/assets/modal.js?body=1" for 127.0.0.1 at 2013-11-11 12:44:15 +0530
+RailsDevTweaks: Skipping ActionDispatch::Reloader hooks for this request.
+Served asset /modal.js - 200 OK (1ms)
+
+
+Started GET "/assets/unsupported-browsers.js?body=1" for 127.0.0.1 at 2013-11-11 12:44:15 +0530
+RailsDevTweaks: Skipping ActionDispatch::Reloader hooks for this request.
+Served asset /unsupported-browsers.js - 200 OK (2ms)
+
+
+Started GET "/assets/application.js?body=1" for 127.0.0.1 at 2013-11-11 12:44:15 +0530
+RailsDevTweaks: Skipping ActionDispatch::Reloader hooks for this request.
+Served asset /application.js - 200 OK (155ms)
+
+
+Started GET "/assets/accessibility.js?body=1" for 127.0.0.1 at 2013-11-11 12:44:15 +0530
+RailsDevTweaks: Skipping ActionDispatch::Reloader hooks for this request.
+Served asset /accessibility.js - 200 OK (1ms)
+
+
+Started GET "/assets/favicon.ico" for 127.0.0.1 at 2013-11-11 12:44:15 +0530
+RailsDevTweaks: Skipping ActionDispatch::Reloader hooks for this request.
+Served asset /favicon.ico - 200 OK (25ms)
+
+
+Started GET "/assets/logo_openproject.png" for 127.0.0.1 at 2013-11-11 12:44:16 +0530
+RailsDevTweaks: Skipping ActionDispatch::Reloader hooks for this request.
+Served asset /logo_openproject.png - 200 OK (19ms)
+
+
+Started GET "/assets/topmenu_sprite.png" for 127.0.0.1 at 2013-11-11 12:44:16 +0530
+RailsDevTweaks: Skipping ActionDispatch::Reloader hooks for this request.
+Served asset /topmenu_sprite.png - 200 OK (88ms)
+
+
+Started GET "/assets/home_black_white_sprite.png" for 127.0.0.1 at 2013-11-11 12:44:16 +0530
+RailsDevTweaks: Skipping ActionDispatch::Reloader hooks for this request.
+Served asset /home_black_white_sprite.png - 200 OK (13ms)
+
+
+Started GET "/assets/top_menu_arrow_black_white_sprite.png" for 127.0.0.1 at 2013-11-11 12:44:16 +0530
+RailsDevTweaks: Skipping ActionDispatch::Reloader hooks for this request.
+Served asset /top_menu_arrow_black_white_sprite.png - 200 OK (11ms)
+
+
+Started GET "/assets/webalys/search.png" for 127.0.0.1 at 2013-11-11 12:44:16 +0530
+RailsDevTweaks: Skipping ActionDispatch::Reloader hooks for this request.
+Served asset /webalys/search.png - 200 OK (9ms)
+
+
+Started GET "/assets/question_mark_black_white_sprite.png" for 127.0.0.1 at 2013-11-11 12:44:16 +0530
+RailsDevTweaks: Skipping ActionDispatch::Reloader hooks for this request.
+Served asset /question_mark_black_white_sprite.png - 200 OK (7ms)
+
+
+Started GET "/assets/breadcrumb-list.png" for 127.0.0.1 at 2013-11-11 12:44:16 +0530
+RailsDevTweaks: Skipping ActionDispatch::Reloader hooks for this request.
+Served asset /breadcrumb-list.png - 200 OK (5ms)

@@ -1,0 +1,105 @@
+<%#-- copyright
+OpenProject is a project management system.
+Copyright (C) 2012-2013 the OpenProject Foundation (OPF)
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License version 3.
+
+OpenProject is a fork of ChiliProject, which is a fork of Redmine. The copyright follows:
+Copyright (C) 2006-2013 Jean-Philippe Lang
+Copyright (C) 2010-2013 the ChiliProject Team
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+See doc/COPYRIGHT.rdoc for more details.
+
+++#%>
+
+<%= error_messages_for 'project' %>
+
+<div class="box">
+<!--[form:project]-->
+<p><%= f.text_field :name, :required => true, :size => 60 %></p>
+
+<% unless @project.allowed_parents.compact.empty? %>
+  <p><%= label(:project, :parent_id, Project.human_attribute_name(:parent)) %><%= parent_project_select_tag(@project) %></p>
+<% end %>
+
+<p><%= f.text_area :summary, :rows => 2, :class => 'wiki-edit' %></p>
+<p><%= f.text_area :description, :rows => 5, :class => 'wiki-edit' %></p>
+<p><%= f.text_field :identifier, :required => true, :size => 60, :disabled => @project.identifier_frozen? %>
+<% unless @project.identifier_frozen? %>
+<script type="text/javascript" charset="utf-8">
+  projectIdentifierMaxLength = <%= Project::IDENTIFIER_MAX_LENGTH %>;
+  projectIdentifierDefault = '<%= @project.identifier %>';
+  projectIdentifierLocked = <%= !@project.identifier.blank? %>;
+  observeProjectIdentifier();
+  observeProjectName();
+</script>
+<br /><em><%= l(:text_length_between, :min => 1, :max => Project::IDENTIFIER_MAX_LENGTH) %> <%= l(:text_project_identifier_info).html_safe %></em>
+<% end %></p>
+<p><%= f.text_field :homepage, :size => 60 %></p>
+<p><%= f.check_box :is_public %></p>
+<%= wikitoolbar_for 'project_description' %>
+
+<% @project.custom_field_values.each do |value| %>
+	<p><%= custom_field_tag_with_label :project, value %></p>
+<% end %>
+
+<%# former timelines hook: %>
+<% extend TimelinesHelper %>
+<p><%= f.select :project_type_id, options_for_project_types, :include_blank => true %></p>
+<p><%= f.select :responsible_id, options_for_responsible(@project), :include_blank => true %></p>
+
+<%= call_hook(:view_projects_form, :project => @project, :form => f) %>
+
+</div>
+
+<% if @project.new_record? %>
+<fieldset class="box" id="project_modules"><legend><%= l(:label_module_plural) %> <span style="font-size:0.9em">(<%= check_all_links 'project_modules' %>)</span></legend>
+<% Redmine::AccessControl.available_project_modules.each do |m| %>
+    <label class="floating">
+    <%= check_box_tag 'project[enabled_module_names][]', m, @project.module_enabled?(m), :id => "project_enabled_module_names_#{m}" %>
+    <%= l_or_humanize(m, :prefix => "project_module_") %>
+    </label>
+<% end %>
+<%= hidden_field_tag 'project[enabled_module_names][]', '' %>
+<%= javascript_tag 'observeProjectModules()' %>
+</fieldset>
+<% end %>
+
+<% if (@project.new_record? || @project.module_enabled?('issue_tracking')) %>
+<% unless @types.empty? %>
+  <% if renderTypes %>
+    <fieldset class="box" id="project_types"><legend><%=l(:label_type_plural)%> <span style="font-size:0.9em">(<%= check_all_links 'project_types' %>)</span></legend>
+      <%= render :partial => 'projects/types_form', :locals => { :f => f } %>
+      <%= hidden_field_tag 'project[type_ids][]', '' %>
+    </fieldset>
+  <% end %>
+<% end %>
+
+<% unless @issue_custom_fields.empty? %>
+<fieldset class="box" id="project_issue_custom_fields"><legend><%=l(:label_custom_field_plural)%> <span style="font-size:0.9em">(<%= check_all_links 'project_issue_custom_fields' %>)</span></legend>
+<% @issue_custom_fields.each do |custom_field| %>
+    <label class="floating">
+	<%= check_box_tag 'project[work_package_custom_field_ids][]', custom_field.id, (@project.all_work_package_custom_fields.include? custom_field), (custom_field.is_for_all? ? {:disabled => "disabled"} : {}) %>
+	<%= h(custom_field.name) %>
+	</label>
+<% end %>
+<%= hidden_field_tag 'project[work_package_custom_field_ids][]', '' %>
+</fieldset>
+<% end %>
+<% end %>
+<!--[eoform:project]-->
